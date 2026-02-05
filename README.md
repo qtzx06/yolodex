@@ -61,6 +61,19 @@ uv run .agents/skills/train/scripts/run.py          # train YOLO model
 uv run .agents/skills/eval/scripts/run.py           # evaluate model
 ```
 
+**Real-time gameplay bot (state machine + YOLO):**
+```bash
+# 1) list configured game presets
+uv run .agents/skills/play/scripts/run.py --list-games
+
+# 2) calibrate capture monitor/ROI for one game preset
+uv run .agents/skills/play/scripts/run.py --game space-invaders --monitor-info
+
+# 3) run gameplay bot
+uv run .agents/skills/play/scripts/run.py --game space-invaders
+```
+Controls: hold-to-shoot is automatic while active. Toggle active with `f8`, emergency kill with `f9`.
+
 **With Codex (interactive):**
 ```
 $ codex
@@ -88,6 +101,7 @@ Each pipeline stage is a standalone [Codex skill](https://developers.openai.com/
 | **augment** | Generate synthetic training data (flip, brightness, contrast, noise) | `scripts/run.py` |
 | **train** | Split dataset, generate YAML, train YOLO with ultralytics | `scripts/run.py` |
 | **eval** | Evaluate model, compute mAP@50, identify weakest classes | `scripts/run.py` |
+| **play** | Real-time MSS capture + YOLO detection + deterministic evade state machine | `scripts/run.py` |
 
 ### Parallel Labeling
 
@@ -153,6 +167,33 @@ Change in `config.json`:
 | `yolo_model` | `"yolov8n.pt"` | YOLO base model for training |
 | `epochs` | `50` | Training epochs per iteration |
 | `train_split` | `0.8` | Train/val split ratio |
+| `bot.games` | `{}` | Per-game play presets keyed by game name (use with `--game`) |
+| `bot.default_game` | `""` | Default game preset if `--game` is omitted |
+| `bot.capture` | monitor bounds | Global/default capture settings (`monitor_index`, `left`, `top`, `width`, `height`) |
+| `bot.thresholds` | see play defaults | Global/default state-machine thresholds |
+
+Gameplay bot config example:
+```json
+{
+  "project": "space-invaders-v1",
+  "bot": {
+    "default_game": "space-invaders",
+    "hotkeys": { "toggle_active": "f8", "emergency_kill": "f9" },
+    "games": {
+      "space-invaders": {
+        "threat_classes": ["projectile"],
+        "capture": { "monitor_index": 1, "left": 300, "top": 160, "width": 900, "height": 700 },
+        "thresholds": {
+          "detection_confidence": 0.35,
+          "threat_persistence_frames": 2,
+          "side_switch_cooldown_s": 0.25,
+          "max_evade_duration_s": 0.6
+        }
+      }
+    }
+  }
+}
+```
 
 ## Project Structure
 
@@ -164,8 +205,10 @@ yolodex/
 │   ├── label/              # Vision labeling (single + parallel modes)
 │   ├── augment/            # Synthetic data augmentation
 │   ├── train/              # YOLO training with ultralytics
-│   └── eval/               # mAP metrics + failure analysis
+│   ├── eval/               # mAP metrics + failure analysis
+│   └── play/               # Real-time gameplay bot (MSS + YOLO + state machine)
 ├── shared/utils.py         # Shared Python utils (BoundingBox, helpers)
+├── shared/game_bot/        # Capture, detector, FSM, input, runtime
 ├── pipeline/main.py        # Original monolith (preserved as reference)
 ├── landing/                # Web dashboard (HTML/CSS)
 ├── docs/                   # Detailed documentation

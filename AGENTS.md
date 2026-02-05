@@ -18,9 +18,16 @@ If config.json is already populated, just run: `bash yolodex.sh`
 - YOLO model: yolov8n.pt (default, can be changed in config.json)
 
 ## Architecture
-- Skills: yolodex (intake), collect, label (parallel), augment, train, eval
-- Shared code: shared/utils.py
+- Skills: yolodex (intake), collect, label (parallel), augment, train, eval, play
+- Shared code: shared/utils.py, shared/game_bot/
 - Config: config.json | Memory: progress.txt
+
+## Gameplay Bot (Deterministic)
+Use the **play skill** for live gameplay automation:
+- List configured games: `uv run .agents/skills/play/scripts/run.py --list-games`
+- Calibrate monitor/ROI: `uv run .agents/skills/play/scripts/run.py --game <game> --monitor-info`
+- Run bot: `uv run .agents/skills/play/scripts/run.py --game <game>`
+Hotkeys: `f8` toggle active, `f9` emergency kill.
 
 ## Output Directory
 When `project` is set in config.json, output goes to `runs/<project>/` (e.g. `runs/subway-surfers/`).
