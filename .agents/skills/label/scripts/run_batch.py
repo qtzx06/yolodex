@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Label skill (subagent batch mode): label frames in the local worktree only."""
+"""Label skill (subagent batch mode): label frames in the local worktree with class-wise GPT calls."""
 
 from __future__ import annotations
 
@@ -22,13 +22,22 @@ from shared.utils import (
     read_image_dimensions,
 )
 
-PROMPT_TEMPLATE = """
+MULTI_CLASS_PROMPT_TEMPLATE = """
 Detect every visible object in this image and return bounding boxes.
 {class_hint}
 Rules:
 - x,y,width,height must be pixel values in the original image.
 - x,y is top-left corner.
 - Include all salient objects.
+""".strip()
+
+SINGLE_CLASS_PROMPT_TEMPLATE = """
+Detect only objects of class "{class_name}" in this image and return bounding boxes.
+Rules:
+- Return only "{class_name}" objects. Ignore every other class.
+- If no "{class_name}" is visible, return an empty list.
+- x,y,width,height must be pixel values in the original image.
+- x,y is top-left corner.
 """.strip()
 
 RESPONSE_SCHEMA = {
@@ -67,7 +76,11 @@ def build_prompt(classes: list[str]) -> str:
         hint = f"Focus on these classes: {', '.join(classes)}."
     else:
         hint = "Include all salient objects (people, vehicles, UI elements, weapons, items, enemies, etc.)."
-    return PROMPT_TEMPLATE.format(class_hint=hint)
+    return MULTI_CLASS_PROMPT_TEMPLATE.format(class_hint=hint)
+
+
+def build_single_class_prompt(class_name: str) -> str:
+    return SINGLE_CLASS_PROMPT_TEMPLATE.format(class_name=class_name)
 
 
 def detect_objects(client: OpenAI, model: str, frame_path: Path, prompt: str) -> list[BoundingBox]:
@@ -111,6 +124,27 @@ def detect_objects(client: OpenAI, model: str, frame_path: Path, prompt: str) ->
         except (KeyError, TypeError, ValueError):
             continue
     return boxes
+
+
+def detect_objects_for_class(
+    client: OpenAI,
+    model: str,
+    frame_path: Path,
+    class_name: str,
+) -> list[BoundingBox]:
+    prompt = build_single_class_prompt(class_name)
+    boxes = detect_objects(client, model, frame_path, prompt)
+    normalized_name = class_name.strip().lower().replace(" ", "_")
+    return [
+        BoundingBox(
+            class_name=normalized_name,
+            x=box.x,
+            y=box.y,
+            width=box.width,
+            height=box.height,
+        )
+        for box in boxes
+    ]
 
 
 def to_yolo_line(box: BoundingBox, class_id: int, img_w: int, img_h: int) -> str:
@@ -174,14 +208,23 @@ def main() -> int:
         return 0
 
     client = OpenAI(api_key=api_key)
-    prompt = build_prompt(classes)
+    fallback_prompt = build_prompt(classes) if not classes else ""
     class_to_id: dict[str, int] = {}
+    for class_name in classes:
+        normalized = str(class_name).strip().lower().replace(" ", "_")
+        if normalized and normalized not in class_to_id:
+            class_to_id[normalized] = len(class_to_id)
 
     print(f"[batch] Labeling {len(unlabeled)} frames with {model}...")
     try:
         for idx, frame_path in enumerate(unlabeled, start=1):
             print(f"  - Frame {idx}/{len(unlabeled)}: {frame_path.name}")
-            boxes = detect_objects(client, model, frame_path, prompt)
+            if classes:
+                boxes: list[BoundingBox] = []
+                for class_name in classes:
+                    boxes.extend(detect_objects_for_class(client, model, frame_path, str(class_name)))
+            else:
+                boxes = detect_objects(client, model, frame_path, fallback_prompt)
             write_yolo_labels(frame_path, boxes, class_to_id)
     except PipelineError as exc:
         print(f"Error: {exc}", file=sys.stderr)

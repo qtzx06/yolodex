@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 
 def clamp(value: int, low: int, high: int) -> int:
@@ -33,6 +33,10 @@ def draw_image(img_path: Path, label_path: Path, out_path: Path, class_names: li
     image = Image.open(img_path).convert("RGB")
     width, height = image.size
     draw = ImageDraw.Draw(image)
+    try:
+        font = ImageFont.truetype("DejaVuSans-Bold.ttf", 20)
+    except OSError:
+        font = ImageFont.load_default()
 
     if label_path.exists():
         for raw in label_path.read_text(encoding="utf-8").splitlines():
@@ -58,10 +62,23 @@ def draw_image(img_path: Path, label_path: Path, out_path: Path, class_names: li
             if x2 <= x1 or y2 <= y1:
                 continue
 
-            draw.rectangle([(x1, y1), (x2, y2)], outline=(60, 255, 80), width=3)
+            color = (
+                64 + ((cls_id * 73) % 170),
+                64 + ((cls_id * 131) % 170),
+                64 + ((cls_id * 193) % 170),
+            )
+            draw.rectangle([(x1, y1), (x2, y2)], outline=color, width=4)
             label = class_names[cls_id] if 0 <= cls_id < len(class_names) else f"class_{cls_id}"
-            text_y = y1 - 18 if y1 >= 18 else y1 + 2
-            draw.text((x1 + 2, text_y), label, fill=(60, 255, 80))
+            text_bbox = draw.textbbox((0, 0), label, font=font)
+            text_w = text_bbox[2] - text_bbox[0]
+            text_h = text_bbox[3] - text_bbox[1]
+            text_x = x1 + 3
+            text_y = y1 - (text_h + 8) if y1 >= (text_h + 8) else y1 + 3
+            draw.rectangle(
+                [(text_x - 3, text_y - 2), (text_x + text_w + 3, text_y + text_h + 2)],
+                fill=(0, 0, 0),
+            )
+            draw.text((text_x, text_y), label, fill=color, font=font)
 
     image.save(out_path)
 

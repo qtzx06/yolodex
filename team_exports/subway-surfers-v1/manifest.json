@@ -1,0 +1,14 @@
+{
+  "project": "subway-surfers",
+  "images": 30,
+  "labels": 30,
+  "classes": [
+    "player",
+    "train",
+    "coins",
+    "powerup",
+    "obstacle",
+    "barrier"
+  ],
+  "format": "yolo"
+}
