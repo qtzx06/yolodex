@@ -19,5 +19,36 @@
   "gemini_model": "gemini-2.5-flash",
   "yolo_model": "yolov8n.pt",
   "epochs": 50,
-  "train_split": 0.8
+  "train_split": 0.8,
+  "bot": {
+    "default_game": "space-invaders",
+    "hotkeys": {
+      "toggle_active": "f8",
+      "emergency_kill": "f9"
+    },
+    "loop_hz": 30,
+    "log_hz": 5,
+    "imgsz": 640,
+    "games": {
+      "space-invaders": {
+        "threat_classes": [
+          "projectile"
+        ],
+        "capture": {
+          "monitor_index": 1,
+          "left": null,
+          "top": null,
+          "width": null,
+          "height": null
+        },
+        "thresholds": {
+          "detection_confidence": 0.35,
+          "threat_persistence_frames": 2,
+          "side_switch_cooldown_s": 0.25,
+          "max_evade_duration_s": 0.6,
+          "stabilize_duration_s": 0.12
+        }
+      }
+    }
+  }
 }
