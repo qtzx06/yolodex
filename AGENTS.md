@@ -4,7 +4,8 @@ Autonomous YOLO training data generation from gameplay videos.
 
 ## Quick Start (Interactive)
 If the user wants to train a model, use the **yolodex skill** (`.agents/skills/yolodex/SKILL.md`).
-Ask for: YouTube URL, target classes, optional accuracy target. Then write to config.json and run the pipeline.
+Ask for: YouTube URL, target classes, **labeling mode** (cua+sam / gemini / gpt), optional accuracy target.
+Then write to config.json and run the pipeline.
 
 ## Quick Start (Autonomous)
 If config.json is already populated, just run: `bash yolodex.sh`
@@ -13,7 +14,7 @@ If config.json is already populated, just run: `bash yolodex.sh`
 - Python with type hints, use `uv run` for execution
 - Each skill in .agents/skills/ is independently runnable
 - Use `codex exec --full-auto -C <path>` for parallel subagent dispatch
-- Vision model: gpt-5-nano (fastest, cheapest for bounding box detection)
+- Label modes: `cua+sam` (CUA clicks + SAM segmentation), `gemini` (native bbox), `gpt` (fallback)
 - YOLO model: yolov8n.pt (default, can be changed in config.json)
 
 ## Architecture
@@ -31,8 +32,11 @@ Check state and execute next phase:
    → Run collect: `uv run .agents/skills/collect/scripts/run.py`
 
 3. **Frames but no labels** (no .txt files in output/frames/):
-   → Run parallel label: `bash .agents/skills/label/scripts/dispatch.sh`
-   This dispatches N subagents in worktrees for concurrent labeling.
+   → Check `label_mode` in config.json:
+     - `cua+sam`: `uv run .agents/skills/label/scripts/label_cua_sam.py`
+     - `gemini`: `uv run .agents/skills/label/scripts/label_gemini.py`
+     - `gpt` (parallel): `bash .agents/skills/label/scripts/dispatch.sh`
+     - `gpt` (single): `uv run .agents/skills/label/scripts/run.py`
 
 4. **Labels but no model** (output/weights/best.pt missing):
    → Run augment: `uv run .agents/skills/augment/scripts/run.py`
