@@ -12,9 +12,9 @@ from pynput.keyboard import Key, KeyCode, Listener
 
 from shared.game_bot.capture import MSSCapture
 from shared.game_bot.config import BotConfig, list_games, load_bot_config
-from shared.game_bot.detector import ThreatObservation, ThreatSide, YoloThreatDetector
 from shared.game_bot.input_controller import InputController
 from shared.game_bot.state_machine import Decision, GameStateMachine, MoveDirection, StateMachineConfig
+from shared.game_bot.types import ThreatSide
 
 
 @dataclass
@@ -36,7 +36,7 @@ class StatusView:
         now: float,
         flags: RuntimeFlags,
         decision: Decision,
-        threat: ThreatObservation,
+        threat: object,
         frame_ms: float,
         capture_region: tuple[int, int, int, int],
         hotkeys: tuple[str, str],
@@ -51,17 +51,20 @@ class StatusView:
         print(f"active: {flags.active} | kill: {flags.killed}")
         print(f"state: {decision.state.value} | move: {decision.move.value}")
         print(f"threat(observed/persistent): {decision.observed_threat.value}/{decision.persistent_threat.value}")
-        if threat.best is None:
+        best = getattr(threat, "best", None)
+        side = getattr(threat, "side", ThreatSide.NONE)
+        score = getattr(threat, "score", 0.0)
+        if best is None:
             print("best detection: none")
         else:
             print(
                 "best detection: "
-                f"{threat.best.class_name} conf={threat.best.confidence:.2f} "
-                f"side={threat.side.value} score={threat.score:.3f}"
+                f"{best.class_name} conf={best.confidence:.2f} "
+                f"side={side.value} score={score:.3f}"
             )
         print(f"capture region: left={capture_region[0]} top={capture_region[1]} w={capture_region[2]} h={capture_region[3]}")
         print(f"frame time: {frame_ms:.1f} ms")
-        print(f"hotkeys: toggle={hotkeys[0]} | emergency={hotkeys[1]}")
+        print(f"hotkeys: toggle={hotkeys[0]} | emergency={hotkeys[1]}", flush=True)
 
 
 def _parse_hotkey(token: str) -> Key | KeyCode:
@@ -144,10 +147,31 @@ def run(args: argparse.Namespace) -> int:
                 print(f"  - {name}")
         return 0
 
-    bot_cfg = load_bot_config(args.config, game_override=args.game)
+    try:
+        bot_cfg = load_bot_config(args.config, game_override=args.game)
+    except ValueError as exc:
+        print(f"Config error: {exc}")
+        return 1
     if args.monitor_info:
         _print_monitor_info(bot_cfg)
         return 0
+
+    if not bot_cfg.model_path.exists():
+        print(f"Model weights not found: {bot_cfg.model_path}")
+        print("Train first or set bot.model_path in config.json (or game preset).")
+        return 1
+
+    print(f"[play] Selected game: {bot_cfg.game}", flush=True)
+    print(f"[play] Loading model from: {bot_cfg.model_path}", flush=True)
+    print(
+        "[play] Capture region source: "
+        f"monitor={bot_cfg.capture.monitor_index}, "
+        f"left={bot_cfg.capture.left}, top={bot_cfg.capture.top}, "
+        f"width={bot_cfg.capture.width}, height={bot_cfg.capture.height}",
+        flush=True,
+    )
+
+    from shared.game_bot.detector import ThreatObservation, YoloThreatDetector
 
     toggle_hotkey = _parse_hotkey(bot_cfg.hotkeys.toggle_active)
     kill_hotkey = _parse_hotkey(bot_cfg.hotkeys.emergency_kill)
@@ -192,6 +216,11 @@ def run(args: argparse.Namespace) -> int:
     decision = sm.update(ThreatSide.NONE, now)
     threat = ThreatObservation(side=ThreatSide.NONE, best=None, score=0.0)
     target_dt = 1.0 / max(bot_cfg.loop_hz, 1.0)
+    print(
+        f"[play] Ready. active={flags.active} dry_run={args.dry_run or bot_cfg.dry_run} "
+        f"toggle={bot_cfg.hotkeys.toggle_active} emergency={bot_cfg.hotkeys.emergency_kill}",
+        flush=True,
+    )
 
     try:
         while True:

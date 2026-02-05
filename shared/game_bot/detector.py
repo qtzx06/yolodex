@@ -3,18 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 from ultralytics import YOLO
 
-
-class ThreatSide(str, Enum):
-    NONE = "none"
-    LEFT = "left"
-    RIGHT = "right"
+from shared.game_bot.types import ThreatSide
 
 
 @dataclass(frozen=True)
@@ -119,4 +114,3 @@ class YoloThreatDetector:
         best_score = score(best)
         side = ThreatSide.LEFT if best.cx < (frame_width * 0.5) else ThreatSide.RIGHT
         return ThreatObservation(side=side, best=best, score=best_score)
-

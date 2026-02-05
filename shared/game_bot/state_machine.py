@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
-from shared.game_bot.detector import ThreatSide
+from shared.game_bot.types import ThreatSide
 
 
 class BotState(str, Enum):
@@ -124,4 +124,3 @@ class GameStateMachine:
             observed_threat=observed_threat,
             persistent_threat=persistent,
         )
-
