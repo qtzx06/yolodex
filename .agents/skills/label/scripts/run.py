@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import sys
+import subprocess
 from pathlib import Path
 
 # Ensure repo root is importable
@@ -238,8 +239,39 @@ def main() -> int:
 
     write_class_map(class_to_id, class_map_path)
     print(f"[label] Done. {len(unlabeled)} frames labeled. Classes: {class_map_path}")
+    _maybe_generate_previews(output_dir)
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+def _maybe_generate_previews(output_dir: Path) -> None:
+    frames_dir = output_dir / "frames"
+    classes_path = output_dir / "classes.txt"
+    if not frames_dir.exists() or not classes_path.exists():
+        return
+
+    preview_dir = frames_dir / "preview"
+    video_out = preview_dir / "preview.mp4"
+
+    cmd = [
+        "uv",
+        "run",
+        ".agents/skills/eval/scripts/preview_labels.py",
+        str(frames_dir),
+        "--classes",
+        str(classes_path),
+        "--out-dir",
+        str(preview_dir),
+        "--limit",
+        "0",
+        "--video-out",
+        str(video_out),
+    ]
+
+    try:
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as exc:
+        print(f"[label] Warning: preview generation failed ({exc})", file=sys.stderr)

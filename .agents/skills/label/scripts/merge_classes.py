@@ -31,7 +31,10 @@ def main() -> int:
                 unified[name] = idx
 
     # Then scan worktree class files for new classes
-    for classes_file in sorted(worktree_base.glob("agent-*/output/classes.txt")):
+    for agent_dir in sorted(worktree_base.glob("agent-*")):
+        classes_file = agent_dir / output_dir / "classes.txt"
+        if not classes_file.exists():
+            continue
         for name in classes_file.read_text().strip().split("\n"):
             if name and name not in unified:
                 unified[name] = len(unified)

@@ -55,6 +55,10 @@ labels all unlabeled frames sequentially. good for small batches or when codex i
 **run**: `bash .agents/skills/label/scripts/dispatch.sh [num_agents]`
 
 splits frames into batches, creates git worktrees, dispatches concurrent codex subagents. ~Nx faster.
+if a user says `call subagent`, map it to this command.
+supports:
+- `label_mode=gpt` with `OPENAI_API_KEY` (runs `run_batch.py`)
+- `label_mode=codex` without API keys (Codex subagents inspect images directly)
 
 ### scripts
 
@@ -66,6 +70,7 @@ splits frames into batches, creates git worktrees, dispatches concurrent codex s
 | `merge_classes.py` | unifies class maps from all subagents |
 
 **reads from config**: `classes`, `model`, `output_dir`, `num_agents`
+`dispatch.sh` also resolves `project -> runs/<project>/` so subagents write to the active run directory.
 
 **outputs**:
 - `output/frames/*.txt` (YOLO format labels)

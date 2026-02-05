@@ -30,6 +30,26 @@ The setup script installs everything: ffmpeg, yt-dlp, uv, Python deps (ultralyti
 - `OPENAI_API_KEY` environment variable
 - Optional: [Codex CLI](https://github.com/openai/codex) for parallel labeling + autonomous loop
 
+## Enable Subagents (Codex)
+
+If you want to use `call subagent` workflows in this repo, enable Codex collaboration features once:
+
+```bash
+codex features enable collab
+codex features enable child_agents_md
+codex features enable steer
+codex features list | rg 'collab|child_agents_md|steer'
+```
+
+Then start a new Codex session in this repo. In Yolodex, `call subagent` for labeling maps to the same orchestrator used by scripts:
+
+```bash
+bash .agents/skills/label/scripts/dispatch.sh 4
+```
+
+If your session does not expose subagents, use the command above directly.
+For no-key labeling, set `"label_mode": "codex"` in `config.json` and run the same command.
+
 ## Quick Start
 
 ### 1. Configure
@@ -39,6 +59,7 @@ The setup script installs everything: ffmpeg, yt-dlp, uv, Python deps (ultralyti
 {
   "video_url": "https://youtube.com/watch?v=YOUR_VIDEO",
   "classes": ["player", "weapon", "vehicle"],
+  "label_mode": "codex",
   "target_accuracy": 0.75,
   "model": "gpt-5-nano"
 }
@@ -55,7 +76,7 @@ Runs the full pipeline in a loop until target accuracy is reached.
 **Manual (skill by skill):**
 ```bash
 uv run .agents/skills/collect/scripts/run.py       # download + extract frames
-bash .agents/skills/label/scripts/dispatch.sh 4     # label with 4 parallel agents
+bash .agents/skills/label/scripts/dispatch.sh 4    # label, merge, and auto-generate previews + video
 uv run .agents/skills/augment/scripts/run.py        # augment training data
 uv run .agents/skills/train/scripts/run.py          # train YOLO model
 uv run .agents/skills/eval/scripts/run.py           # evaluate model
@@ -65,6 +86,7 @@ uv run .agents/skills/eval/scripts/run.py           # evaluate model
 ```
 $ codex
 > Train a YOLO model to detect players and weapons from this Fortnite video: https://youtube.com/...
+> call subagent label frames with 4 agents
 ```
 Codex reads AGENTS.md, asks for config, runs everything.
 
@@ -74,6 +96,8 @@ Codex reads AGENTS.md, asks for config, runs everything.
 cat output/eval_results.json    # mAP, precision, recall, per-class breakdown
 cd landing && bunx serve .      # web dashboard
 ```
+After labeling you can inspect `runs/<project>/frames/preview/` (PNG overlays)
+and `runs/<project>/frames/preview/preview.mp4` for a quick annotated walkthrough.
 
 ## How It Works
 
@@ -149,6 +173,7 @@ Change in `config.json`:
 | `max_iterations` | `10` | Safety cap on autonomous loop |
 | `num_agents` | `4` | Parallel labeling subagents |
 | `fps` | `1` | Frame extraction rate (frames/second) |
+| `label_mode` | `"gpt"` | Labeler mode: `cua+sam`, `gemini`, `gpt`, or `codex` (no API keys) |
 | `model` | `"gpt-5-nano"` | Vision model for labeling |
 | `yolo_model` | `"yolov8n.pt"` | YOLO base model for training |
 | `epochs` | `50` | Training epochs per iteration |
@@ -176,6 +201,13 @@ yolodex/
 ├── progress.txt            # Cross-iteration memory
 └── pyproject.toml          # Python project (uv)
 ```
+
+## Sanitized exports
+
+`team_exports/` holds ready-to-share datasets for completed projects.
+Each export includes `dataset/images`, `dataset/labels`, `classes.txt`, overlay previews,
+and a minimal `manifest.json` so downstream teams can consume clean YOLO data without
+touching the full `runs/` tree.
 
 ## Docs
 

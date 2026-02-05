@@ -34,6 +34,16 @@ def download_video(url: str, output_path: Path) -> None:
         str(output_path),
         url,
     ])
+    # yt-dlp may append the real container extension (e.g. .webm) even when
+    # the output template ends with .mp4. Normalize to the expected path.
+    if not output_path.exists():
+        candidates = sorted(output_path.parent.glob(f"{output_path.name}*"))
+        for candidate in candidates:
+            if candidate == output_path:
+                continue
+            if candidate.is_file():
+                candidate.replace(output_path)
+                break
 
 
 def extract_frames(video_path: Path, frames_dir: Path, fps: int = 1) -> list[Path]:

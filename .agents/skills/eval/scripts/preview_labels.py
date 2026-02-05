@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -26,6 +27,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--classes", required=True, help="Path to classes.txt")
     parser.add_argument("--out-dir", default=None, help="Output directory (default: <frames_dir>/preview)")
     parser.add_argument("--limit", type=int, default=20, help="Number of images to render (default: 20)")
+    parser.add_argument("--video-out", default=None, help="Optional MP4 path to encode the previews")
+    parser.add_argument("--framerate", type=int, default=2, help="Framerate for preview video (default: 2)")
     return parser.parse_args()
 
 
@@ -98,7 +101,26 @@ def main() -> int:
     for image_path in images:
         draw_image(image_path, image_path.with_suffix(".txt"), out_dir / image_path.name, classes)
 
-    print(f"Rendered {len(images)} preview images to: {out_dir}")
+        print(f"Rendered {len(images)} preview images to: {out_dir}")
+        if args.video_out and images:
+            try:
+                cmd = [
+                    "ffmpeg",
+                    "-y",
+                    "-framerate",
+                    str(args.framerate),
+                    "-i",
+                    str(out_dir / "frame_%06d.jpg"),
+                    "-c:v",
+                    "libx264",
+                    "-pix_fmt",
+                    "yuv420p",
+                    str(args.video_out),
+                ]
+                subprocess.run(cmd, check=True)
+                print(f"Created preview video: {args.video_out}")
+            except subprocess.CalledProcessError as exc:
+                print(f"Warning: Failed to render preview video ({exc})")
     return 0
 
 

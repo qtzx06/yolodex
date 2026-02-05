@@ -1,23 +1,18 @@
 {
-  "project": "subway-surfers",
-  "video_url": "/Users/qtzx/Desktop/subway_surfers.mp4",
+  "project": "fruit-ninja-yt-sXfdfLHp9Ko",
+  "video_url": "https://www.youtube.com/watch?v=sXfdfLHp9Ko",
   "classes": [
-    "player",
-    "train",
-    "coins",
-    "powerup",
-    "obstacle",
-    "barrier"
+    "fruit",
+    "bomb",
+    "blade_trail"
   ],
   "target_accuracy": 0.75,
   "max_iterations": 10,
   "num_agents": 4,
   "fps": 1,
   "output_dir": "output",
-  "label_mode": "cua+sam",
+  "label_mode": "codex",
   "model": "gpt-5-nano",
-  "sam_model": "sam2_b.pt",
-  "gemini_model": "gemini-2.5-flash",
   "yolo_model": "yolov8n.pt",
   "epochs": 50,
   "train_split": 0.8

@@ -23,6 +23,18 @@ youtube url + target classes
 
 frames are split into N batches. each batch gets its own git worktree and a codex subagent (`codex exec --full-auto -C <worktree>`). all agents label concurrently, then results merge back.
 
+## subagent-first orchestration
+
+for `label_mode = gpt`, subagents are the primary parallel path:
+
+1. dispatcher resolves `output_dir` from `config.json` (`runs/<project>/` when project is set)
+2. preflight verifies `codex`, `uv`, and `git worktree`
+3. each agent runs `run_batch.py` in an isolated worktree
+4. labels and class maps are merged back into the main run directory
+
+trigger phrase in interactive sessions: `call subagent ...`
+for keyless operation, use `label_mode = codex` so subagents label via Codex image viewing instead of API keys.
+
 ## directory layout
 
 ```

@@ -160,4 +160,11 @@ done
 # Merge class maps
 uv run .agents/skills/label/scripts/merge_classes.py
 
+echo "Generating preview overlays and video..."
+uv run .agents/skills/eval/scripts/preview_labels.py "${OUTPUT_DIR}/frames" \
+  --classes "${OUTPUT_DIR}/classes.txt" \
+  --out-dir "${OUTPUT_DIR}/frames/preview" \
+  --limit 0 \
+  --video-out "${OUTPUT_DIR}/frames/preview/preview.mp4"
+
 echo "Parallel labeling complete. ${TOTAL} frames labeled."
