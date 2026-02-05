@@ -1,0 +1,11 @@
+{
+  "project": "fruit-ninja-yt-sXfdfLHp9Ko",
+  "images": 20,
+  "labels": 20,
+  "classes": [
+    "fruit",
+    "bomb",
+    "blade_trail"
+  ],
+  "format": "yolo"
+}
