@@ -40,10 +40,13 @@ def clamp(value: float, low: float, high: float) -> float:
 
 
 def load_config(config_path: Path | None = None) -> dict[str, Any]:
-    """Load config.json from the repo root."""
+    """Load config.json from the repo root. Resolves output_dir to runs/<project>/ when project is set."""
     if config_path is None:
         config_path = Path(__file__).resolve().parent.parent / "config.json"
-    return json.loads(config_path.read_text(encoding="utf-8"))
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    if config.get("project"):
+        config["output_dir"] = f"runs/{config['project']}"
+    return config
 
 
 def encode_image_base64(image_path: Path) -> str:

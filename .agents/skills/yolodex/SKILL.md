@@ -8,8 +8,9 @@ user_invocable: true
 
 When the user wants to train a model, gather the following:
 
-1. **YouTube URL** (required): Ask for the video URL
-2. **Target classes** (required): What objects to detect (e.g. "players, weapons, vehicles")
+1. **Video source** (required): YouTube URL or local file path (e.g. `/Users/me/Desktop/gameplay.mp4`)
+2. **Project name** (required): Short kebab-case name (e.g. "subway-surfers", "fortnite-clips"). Output goes to `runs/<project>/`
+3. **Target classes** (required): What objects to detect (e.g. "players, weapons, vehicles")
 3. **Labeling mode** (required): Ask the user which labeling method to use:
    - **CUA+SAM** (recommended): OpenAI CUA clicks on objects, SAM segments precise boundaries. Best accuracy. Requires `OPENAI_API_KEY`.
    - **Gemini**: Google Gemini native bounding box detection. Fast, good accuracy. Requires `GEMINI_API_KEY`.
@@ -23,7 +24,8 @@ When the user wants to train a model, gather the following:
    ```python
    import json
    config = json.load(open("config.json"))
-   config["video_url"] = "<user's url>"
+   config["project"] = "subway-surfers"  # output goes to runs/subway-surfers/
+   config["video_url"] = "<user's url or local path>"
    config["classes"] = ["player", "weapon", ...]
    config["label_mode"] = "cua+sam"  # or "gemini" or "gpt"
    config["target_accuracy"] = 0.75
@@ -42,7 +44,7 @@ When the user wants to train a model, gather the following:
    - `uv run .agents/skills/train/scripts/run.py`
    - `uv run .agents/skills/eval/scripts/run.py`
 
-3. Check `output/eval_results.json` — if accuracy < target, re-label failures and retrain.
+3. Check `runs/<project>/eval_results.json` — if accuracy < target, re-label failures and retrain.
 
 ## Autonomous Mode
 
