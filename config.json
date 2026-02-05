@@ -1,6 +1,13 @@
 {
-  "video_url": "",
-  "classes": [],
+  "video_url": "https://www.youtube.com/watch?v=i0M4ARe9v0Y",
+  "classes": [
+    "player",
+    "train",
+    "coins",
+    "powerup",
+    "obstacle",
+    "barrier"
+  ],
   "target_accuracy": 0.75,
   "max_iterations": 10,
   "num_agents": 4,

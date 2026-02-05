@@ -57,6 +57,14 @@ yolodex/
 | epochs | training epochs per iteration |
 | train_split | train/val split ratio |
 
+## models
+
+- **vision labeling**: gpt-5-nano (default, fastest/cheapest), gpt-4.1-mini (best value), gpt-4o (legacy)
+- **YOLO training**: yolov8n.pt (default, fast), yolov8s/m/l/x.pt (progressively more accurate)
+- uses structured outputs (responses API) so vision model always returns valid JSON
+
+see [models.md](models.md) for full comparison.
+
 ## how to run
 
 interactive: codex reads AGENTS.md, asks for url + classes, writes config, runs pipeline
@@ -64,3 +72,12 @@ interactive: codex reads AGENTS.md, asks for url + classes, writes config, runs 
 autonomous: populate config.json, then `bash yolodex.sh`
 
 individual skills: `uv run .agents/skills/<name>/scripts/run.py`
+
+see [usage.md](usage.md) for detailed walkthrough.
+
+## docs index
+
+- [usage.md](usage.md) — how to run (quick start, manual, autonomous)
+- [models.md](models.md) — vision + YOLO model comparison and pricing
+- [skills.md](skills.md) — detailed reference for each skill
+- [changelog.md](changelog.md) — what changed from the original monolith
