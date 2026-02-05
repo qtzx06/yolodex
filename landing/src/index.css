@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
+
+@font-face {
+  font-family: 'MD Thermochrome';
+  src:
+    local('MD Thermochrome'),
+    local('MDThermochrome'),
+    local('MD-Thermochrome');
+  font-style: normal;
+  font-weight: 400 900;
+}
+
+:root {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-weight: 200;
+  color: #f4f7ff;
+  background-color: #050a14;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0.02em;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-padding-top: 72px;
+}
+
+body {
+  overflow-x: hidden;
+  overflow-y: visible;
+  background: #050a14;
+  text-transform: lowercase;
+  font-weight: 200;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-dark {
+  background: rgba(10, 18, 38, 0.65);
+  border: 1px solid rgba(120, 160, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.text-stroke {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(246, 251, 255, 0.92);
+}
+
+.text-glow {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.52),
+    0 4px 12px rgba(0, 0, 0, 0.46),
+    0 8px 22px rgba(0, 0, 0, 0.34),
+    0 0 18px rgba(156, 188, 255, 0.24),
+    0 0 36px rgba(122, 162, 255, 0.2);
+}
