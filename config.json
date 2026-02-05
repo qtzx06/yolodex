@@ -1,0 +1,13 @@
+{
+  "video_url": "",
+  "classes": [],
+  "target_accuracy": 0.75,
+  "max_iterations": 10,
+  "num_agents": 4,
+  "fps": 1,
+  "output_dir": "output",
+  "model": "gpt-4o",
+  "yolo_model": "yolov8n.pt",
+  "epochs": 50,
+  "train_split": 0.8
+}
