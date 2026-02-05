@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -10,6 +11,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 from shared.utils import PipelineError, load_config, run_command
+
+
+def is_local_file(video_url: str) -> bool:
+    """Check if video_url is a local file path rather than a URL."""
+    return Path(video_url).exists()
+
+
+def copy_local_video(src: str, output_path: Path) -> None:
+    """Copy a local video file to the output directory."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, output_path)
 
 
 def download_video(url: str, output_path: Path) -> None:
@@ -56,8 +68,12 @@ def main() -> int:
     frames_dir = output_dir / "frames"
 
     try:
-        print("[collect] Downloading video with yt-dlp...")
-        download_video(video_url, video_path)
+        if is_local_file(video_url):
+            print(f"[collect] Copying local video: {video_url}")
+            copy_local_video(video_url, video_path)
+        else:
+            print("[collect] Downloading video with yt-dlp...")
+            download_video(video_url, video_path)
 
         print(f"[collect] Extracting frames at {fps} FPS with ffmpeg...")
         frames = extract_frames(video_path, frames_dir, fps=fps)
