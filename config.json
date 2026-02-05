@@ -13,7 +13,10 @@
   "num_agents": 4,
   "fps": 1,
   "output_dir": "output",
+  "label_mode": "cua+sam",
   "model": "gpt-5-nano",
+  "sam_model": "sam2_b.pt",
+  "gemini_model": "gemini-2.5-flash",
   "yolo_model": "yolov8n.pt",
   "epochs": 50,
   "train_split": 0.8
