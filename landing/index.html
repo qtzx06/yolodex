@@ -1,127 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Yolodex</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>Yolodex</h1>
-      <p class="subtitle">Autonomous YOLO training from gameplay videos</p>
-    </header>
-
-    <section class="pipeline">
-      <h2>Pipeline</h2>
-      <div class="stages">
-        <div class="stage">
-          <div class="stage-icon">1</div>
-          <div class="stage-info">
-            <h3>Collect</h3>
-            <p>Download video, extract frames via yt-dlp + ffmpeg</p>
-          </div>
-        </div>
-        <div class="arrow">&rarr;</div>
-        <div class="stage">
-          <div class="stage-icon">2</div>
-          <div class="stage-info">
-            <h3>Label</h3>
-            <p>Parallel GPT-4o vision labeling via Codex subagents in git worktrees</p>
-          </div>
-        </div>
-        <div class="arrow">&rarr;</div>
-        <div class="stage">
-          <div class="stage-icon">3</div>
-          <div class="stage-info">
-            <h3>Augment</h3>
-            <p>Synthetic data: flips, brightness, contrast, noise</p>
-          </div>
-        </div>
-        <div class="arrow">&rarr;</div>
-        <div class="stage">
-          <div class="stage-icon">4</div>
-          <div class="stage-info">
-            <h3>Train</h3>
-            <p>Ultralytics YOLO training with auto dataset split</p>
-          </div>
-        </div>
-        <div class="arrow">&rarr;</div>
-        <div class="stage">
-          <div class="stage-icon">5</div>
-          <div class="stage-info">
-            <h3>Eval</h3>
-            <p>mAP metrics, per-class analysis, failure identification</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="eval-stats" id="eval-stats">
-      <h2>Latest Eval</h2>
-      <div class="stats-grid" id="stats-grid">
-        <div class="stat">
-          <span class="stat-label">mAP@50</span>
-          <span class="stat-value" id="map50">--</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Precision</span>
-          <span class="stat-value" id="precision">--</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Recall</span>
-          <span class="stat-value" id="recall">--</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Target</span>
-          <span class="stat-value" id="target">--</span>
-        </div>
-      </div>
-      <p class="status" id="status">No eval results yet. Run the pipeline to generate metrics.</p>
-    </section>
-
-    <section class="features">
-      <h2>Key Innovation</h2>
-      <div class="feature-grid">
-        <div class="feature">
-          <h3>Parallel Subagents</h3>
-          <p>Frames are split into batches and labeled concurrently by N Codex agents, each in its own git worktree for filesystem isolation.</p>
-        </div>
-        <div class="feature">
-          <h3>Ralph Loop</h3>
-          <p>Autonomous iteration: collect &rarr; label &rarr; augment &rarr; train &rarr; eval &rarr; improve, until target accuracy is reached.</p>
-        </div>
-        <div class="feature">
-          <h3>Codex Skills</h3>
-          <p>Each pipeline stage is a standalone Codex skill with its own SKILL.md, independently runnable and composable.</p>
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      <p>Built with Codex, YOLO, and GPT-4o Vision</p>
-    </footer>
-  </div>
-
-  <script>
-    async function loadEvalResults() {
-      try {
-        const res = await fetch('../output/eval_results.json');
-        if (!res.ok) return;
-        const data = await res.json();
-        document.getElementById('map50').textContent = data.map50?.toFixed(4) ?? '--';
-        document.getElementById('precision').textContent = data.precision?.toFixed(4) ?? '--';
-        document.getElementById('recall').textContent = data.recall?.toFixed(4) ?? '--';
-        document.getElementById('target').textContent = data.target_accuracy ?? '--';
-        document.getElementById('status').textContent = data.meets_target
-          ? 'Target accuracy reached!'
-          : `Below target. Weakest: ${(data.weakest_classes || []).join(', ')}`;
-      } catch {
-        // eval_results.json not available yet
-      }
-    }
-    loadEvalResults();
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yolodex</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
