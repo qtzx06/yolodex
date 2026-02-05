@@ -1,7 +1,19 @@
-# Output
+# Output — pipeline artifacts
 output/
 *.pt
 *.onnx
+runs/
+
+# Test runs — keep structure + docs, ignore generated artifacts
+tests/**/output/
+tests/**/frames/
+tests/**/weights/
+tests/**/augmented/
+tests/**/dataset/
+tests/**/*.mp4
+tests/**/*.jpg
+tests/**/*.jpeg
+tests/**/*.png
 
 # Python
 __pycache__/
@@ -19,6 +31,9 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude
+.claude/
 
 # IDE
 .vscode/
