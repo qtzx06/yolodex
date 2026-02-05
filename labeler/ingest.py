@@ -15,12 +15,29 @@ def ingest_youtube(url: str, run_dir: Path) -> Path:
     raw_dir = run_dir / "raw"
     ensure_dir(raw_dir)
 
-    video_path = raw_dir / "video.mp4"
-
     try:
-        run_command(["yt-dlp", "-f", "bestvideo+bestaudio/best", "-o", str(video_path), url])
+        run_command(
+            [
+                "yt-dlp",
+                "-f",
+                "bestvideo+bestaudio/best",
+                "--merge-output-format",
+                "mp4",
+                "-o",
+                str(raw_dir / "video"),
+                url,
+            ],
+        )
     except CommandError as exc:
         raise IngestError(str(exc)) from exc
+
+    video_candidates = sorted(
+        raw_dir.glob("video*"),
+        key=lambda path: path.stat().st_mtime,
+    )
+    if not video_candidates:
+        raise IngestError("yt-dlp did not produce a video file")
+    video_path = video_candidates[-1]
 
     meta = ffprobe_metadata(video_path)
     payload: dict[str, Any] = {
