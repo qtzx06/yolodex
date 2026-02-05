@@ -89,6 +89,11 @@ def _selected_game_name(config: dict[str, Any], bot_cfg: dict[str, Any], game_ov
         return game_override
     if bot_cfg.get("default_game"):
         return str(bot_cfg["default_game"])
+    if len(available) > 1:
+        project_name = str(config.get("project", ""))
+        if project_name in available:
+            return project_name
+        return ""
     if len(available) == 1:
         return available[0]
     if config.get("project"):
@@ -103,13 +108,13 @@ def load_bot_config(config_path: Path | None = None, game_override: str | None =
     game_name = _selected_game_name(config, bot_cfg, game_override)
     available_games = sorted(str(name) for name in bot_cfg.get("games", {}).keys())
 
+    if len(available_games) > 1 and not game_override and not bot_cfg.get("default_game") and not game_name:
+        raise ValueError(
+            "Multiple games configured. Provide --game <name> or set bot.default_game in config.json."
+        )
     if available_games and game_name not in available_games:
         raise ValueError(
             f"Unknown game '{game_name}'. Available games: {', '.join(available_games)}"
-        )
-    if len(available_games) > 1 and not game_override and not bot_cfg.get("default_game"):
-        raise ValueError(
-            "Multiple games configured. Provide --game <name> or set bot.default_game in config.json."
         )
 
     game_cfg: dict[str, Any] = {}
