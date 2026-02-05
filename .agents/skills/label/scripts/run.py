@@ -25,25 +25,42 @@ from shared.utils import (
 PROMPT_TEMPLATE = """
 Detect every visible object in this image and return bounding boxes.
 {class_hint}
-Return strict JSON using this exact schema:
-{{
-  "objects": [
-    {{
-      "class_name": "string",
-      "x": 0,
-      "y": 0,
-      "width": 0,
-      "height": 0
-    }}
-  ]
-}}
-
 Rules:
 - x,y,width,height must be pixel values in the original image.
 - x,y is top-left corner.
 - Include all salient objects.
-- Do not include explanation text.
 """.strip()
+
+# Structured output schema — the API enforces this, no more JSON parsing failures
+RESPONSE_SCHEMA = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "bounding_boxes",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "objects": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "class_name": {"type": "string"},
+                            "x": {"type": "number"},
+                            "y": {"type": "number"},
+                            "width": {"type": "number"},
+                            "height": {"type": "number"},
+                        },
+                        "required": ["class_name", "x", "y", "width", "height"],
+                        "additionalProperties": False,
+                    },
+                }
+            },
+            "required": ["objects"],
+            "additionalProperties": False,
+        },
+    },
+}
 
 
 def build_prompt(classes: list[str]) -> str:
@@ -71,13 +88,12 @@ def detect_objects(client: OpenAI, model: str, frame_path: Path, prompt: str) ->
                 ],
             }
         ],
+        text=RESPONSE_SCHEMA,
         temperature=0,
     )
 
     payload = extract_json_from_text(response.output_text)
     objects = payload.get("objects", [])
-    if not isinstance(objects, list):
-        raise PipelineError("Model JSON missing 'objects' list.")
 
     boxes: list[BoundingBox] = []
     for obj in objects:
@@ -142,7 +158,7 @@ def main() -> int:
         return 1
 
     config = load_config()
-    model = config.get("model", "gpt-4o")
+    model = config.get("model", "gpt-5-nano")
     classes = config.get("classes", [])
     output_dir = Path(config.get("output_dir", "output"))
     frames_dir = output_dir / "frames"

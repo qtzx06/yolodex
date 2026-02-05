@@ -6,7 +6,7 @@
   "num_agents": 4,
   "fps": 1,
   "output_dir": "output",
-  "model": "gpt-4o",
+  "model": "gpt-5-nano",
   "yolo_model": "yolov8n.pt",
   "epochs": 50,
   "train_split": 0.8
