@@ -34,6 +34,16 @@ def download_video(url: str, output_path: Path) -> None:
         str(output_path),
         url,
     ])
+    if output_path.exists():
+        return
+
+    # yt-dlp can produce names like "video.mp4.webm" when merge container differs.
+    candidates = [p for p in sorted(output_path.parent.glob(f"{output_path.name}.*")) if p.is_file()]
+    if not candidates:
+        raise PipelineError(f"Video download did not produce expected file: {output_path}")
+
+    downloaded = max(candidates, key=lambda p: p.stat().st_size)
+    downloaded.replace(output_path)
 
 
 def extract_frames(video_path: Path, frames_dir: Path, fps: int = 1) -> list[Path]:
