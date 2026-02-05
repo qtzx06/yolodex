@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import random
 import shutil
 import sys
@@ -13,6 +14,29 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 from shared.utils import load_config
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Train YOLO model from labeled data.")
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=None,
+        help="Optional path to config.json (defaults to repo root config).",
+    )
+    parser.add_argument(
+        "--project",
+        type=str,
+        default=None,
+        help="Override project name (forces output_dir to runs/<project>/).",
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=None,
+        help="Override training epochs for this run only.",
+    )
+    return parser.parse_args()
 
 
 def split_dataset(
@@ -116,7 +140,18 @@ def train_model(
 
 
 def main() -> int:
-    config = load_config()
+    args = parse_args()
+    config = load_config(args.config)
+
+    if args.project:
+        config["project"] = args.project
+        config["output_dir"] = f"runs/{args.project}"
+    if args.epochs is not None:
+        if args.epochs < 1:
+            print("[train] Error: --epochs must be >= 1", file=sys.stderr)
+            return 1
+        config["epochs"] = args.epochs
+
     output_dir = Path(config.get("output_dir", "output"))
     frames_dir = output_dir / "frames"
     aug_dir = output_dir / "augmented"
@@ -125,6 +160,9 @@ def main() -> int:
     train_split = config.get("train_split", 0.8)
     yolo_model = config.get("yolo_model", "yolov8n.pt")
     epochs = config.get("epochs", 50)
+
+    print(f"[train] output_dir={output_dir}")
+    print(f"[train] epochs={epochs}")
 
     # Load class names
     classes_path = output_dir / "classes.txt"
