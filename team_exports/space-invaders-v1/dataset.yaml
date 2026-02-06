@@ -1,0 +1,9 @@
+names:
+  0: player_ship
+  1: enemy_invader
+  2: projectile
+  3: shield
+  4: ufo
+path: /Users/ryunzz/_projects/yolodex/runs/space-invaders-v1/dataset
+train: images/train
+val: images/val
