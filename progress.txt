@@ -1,1 +1,6 @@
 # Yolodex Progress Log
+- collect: subway-surfers-v3 video downloaded from YouTube and extracted 68 frames at 1 FPS.
+- label: codex parallel labeling completed for 68/68 frames; classes set to player, coin, train, barrier, powerup.
+- augment: generated 272 augmented samples from 68 labeled frames.
+- collect: elden-ring-v1 video downloaded from YouTube and extracted 102 frames at 1 FPS.
+- label: codex parallel labeling completed for 102/102 frames; classes set to bottom_left_item, player.

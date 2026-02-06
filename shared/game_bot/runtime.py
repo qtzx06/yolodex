@@ -23,7 +23,16 @@ class RuntimeFlags:
     killed: bool = False
 
 
-class StatusView:
+@dataclass(frozen=True)
+class InputStatus:
+    left_down: bool = False
+    right_down: bool = False
+    fire_tapped: bool = False
+    dry_run: bool = False
+    backend: str = "pynput"
+
+
+class ScreenStatusView:
     """Single-screen status output with clear redraws."""
 
     def __init__(self, hz: float) -> None:
@@ -41,6 +50,7 @@ class StatusView:
         capture_region: tuple[int, int, int, int],
         hotkeys: tuple[str, str],
         game: str,
+        input_status: InputStatus,
     ) -> None:
         if now - self._last_draw < self._min_interval_s:
             return
@@ -64,7 +74,52 @@ class StatusView:
             )
         print(f"capture region: left={capture_region[0]} top={capture_region[1]} w={capture_region[2]} h={capture_region[3]}")
         print(f"frame time: {frame_ms:.1f} ms")
+        print(
+            f"input: left_down={input_status.left_down} right_down={input_status.right_down} "
+            f"fire_tapped={input_status.fire_tapped} dry_run={input_status.dry_run} backend={input_status.backend}"
+        )
         print(f"hotkeys: toggle={hotkeys[0]} | emergency={hotkeys[1]}", flush=True)
+
+
+class LineStatusView:
+    """Append-only status output for terminals where clear-screen is hard to follow."""
+
+    def __init__(self, hz: float) -> None:
+        self._min_interval_s = 1.0 / max(hz, 1.0)
+        self._last_draw = 0.0
+
+    def draw(
+        self,
+        *,
+        now: float,
+        flags: RuntimeFlags,
+        decision: Decision,
+        threat: object,
+        frame_ms: float,
+        capture_region: tuple[int, int, int, int],
+        hotkeys: tuple[str, str],
+        game: str,
+        input_status: InputStatus,
+    ) -> None:
+        if now - self._last_draw < self._min_interval_s:
+            return
+        self._last_draw = now
+        best = getattr(threat, "best", None)
+        side = getattr(threat, "side", ThreatSide.NONE)
+        score = float(getattr(threat, "score", 0.0))
+        best_text = "none"
+        if best is not None:
+            best_text = f"{best.class_name}@{best.confidence:.2f}"
+        print(
+            "[play] "
+            f"game={game} active={flags.active} state={decision.state.value} move={decision.move.value} "
+            f"threat={side.value} score={score:.3f} best={best_text} frame_ms={frame_ms:.1f} "
+            f"region=({capture_region[0]},{capture_region[1]},{capture_region[2]},{capture_region[3]}) "
+            f"input=(left={input_status.left_down},right={input_status.right_down},"
+            f"fire_tap={input_status.fire_tapped},dry_run={input_status.dry_run},backend={input_status.backend}) "
+            f"hotkeys={hotkeys[0]}/{hotkeys[1]}",
+            flush=True,
+        )
 
 
 def _parse_hotkey(token: str) -> Key | KeyCode:
@@ -133,6 +188,17 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Start in active mode immediately (otherwise toggle with hotkey).",
     )
+    parser.add_argument(
+        "--status-lines",
+        action="store_true",
+        help="Print append-only status lines instead of clearing/redrawing the screen.",
+    )
+    parser.add_argument(
+        "--input-test-seconds",
+        type=int,
+        default=0,
+        help="Run movement/fire input test for N seconds (bypasses model/detection loop).",
+    )
     return parser
 
 
@@ -154,6 +220,40 @@ def run(args: argparse.Namespace) -> int:
         return 1
     if args.monitor_info:
         _print_monitor_info(bot_cfg)
+        return 0
+
+    if args.input_test_seconds > 0:
+        input_controller = InputController(dry_run=(args.dry_run or bot_cfg.dry_run))
+        duration_s = max(1, args.input_test_seconds)
+        print(
+            f"[play] Input test running for {duration_s}s. Focus the game now. "
+            f"backend={input_controller.backend} dry_run={args.dry_run or bot_cfg.dry_run}",
+            flush=True,
+        )
+        end_at = time.monotonic() + duration_s
+        tick = 0
+        try:
+            while time.monotonic() < end_at:
+                phase = tick % 9
+                if phase < 3:
+                    direction = MoveDirection.LEFT
+                elif phase < 6:
+                    direction = MoveDirection.RIGHT
+                else:
+                    direction = MoveDirection.NONE
+                input_snapshot = input_controller.apply(direction, hold_space=True)
+                if tick % 3 == 0:
+                    print(
+                        "[play] input-test "
+                        f"move={direction.value} fire_tap={input_snapshot['fire_tapped']} "
+                        f"backend={input_snapshot['backend']} dry_run={input_snapshot['dry_run']}",
+                        flush=True,
+                    )
+                tick += 1
+                time.sleep(0.12)
+        finally:
+            input_controller.release_all()
+        print("[play] Input test finished.", flush=True)
         return 0
 
     if not bot_cfg.model_path.exists():
@@ -192,7 +292,7 @@ def run(args: argparse.Namespace) -> int:
         )
     )
     input_controller = InputController(dry_run=(args.dry_run or bot_cfg.dry_run))
-    status = StatusView(hz=bot_cfg.log_hz)
+    status = LineStatusView(hz=bot_cfg.log_hz) if args.status_lines else ScreenStatusView(hz=bot_cfg.log_hz)
 
     flags = RuntimeFlags(active=bool(args.start_active), killed=False)
     lock = Lock()
@@ -215,12 +315,16 @@ def run(args: argparse.Namespace) -> int:
     sm.reset(now)
     decision = sm.update(ThreatSide.NONE, now)
     threat = ThreatObservation(side=ThreatSide.NONE, best=None, score=0.0)
+    input_status = InputStatus(dry_run=bool(args.dry_run or bot_cfg.dry_run))
     target_dt = 1.0 / max(bot_cfg.loop_hz, 1.0)
     print(
         f"[play] Ready. active={flags.active} dry_run={args.dry_run or bot_cfg.dry_run} "
         f"toggle={bot_cfg.hotkeys.toggle_active} emergency={bot_cfg.hotkeys.emergency_kill}",
         flush=True,
     )
+    print("[play] Keep the game window focused while running.", flush=True)
+    if args.status_lines:
+        print("[play] Status mode: append-only lines.", flush=True)
 
     try:
         while True:
@@ -236,10 +340,12 @@ def run(args: argparse.Namespace) -> int:
 
             if active:
                 decision = sm.update(threat.side, loop_start)
-                input_controller.apply(decision.move, hold_space=True)
+                input_snapshot = input_controller.apply(decision.move, hold_space=True)
+                input_status = InputStatus(**input_snapshot)
             else:
                 decision = sm.update(ThreatSide.NONE, loop_start)
-                input_controller.apply(MoveDirection.NONE, hold_space=False)
+                input_snapshot = input_controller.apply(MoveDirection.NONE, hold_space=False)
+                input_status = InputStatus(**input_snapshot)
 
             elapsed = time.monotonic() - loop_start
             status.draw(
@@ -251,6 +357,7 @@ def run(args: argparse.Namespace) -> int:
                 capture_region=(capture.region.left, capture.region.top, capture.region.width, capture.region.height),
                 hotkeys=(bot_cfg.hotkeys.toggle_active, bot_cfg.hotkeys.emergency_kill),
                 game=bot_cfg.game,
+                input_status=input_status,
             )
 
             remaining = target_dt - (time.monotonic() - loop_start)

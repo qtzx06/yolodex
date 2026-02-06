@@ -24,8 +24,9 @@ Modes:
   preflight     Validate dataset/config/runtime prerequisites
   train3        Train Space Invaders for 3 epochs
   sync-weights  Copy best.pt from known ultralytics output paths to runs/space-invaders-v1/weights/best.pt
+  input-test    Send direct keyboard test inputs for 15s (no detection/model loop)
   play-dry      Start play bot in dry-run mode
-  play-live     Start play bot live and active immediately
+  play-live     Start play bot live, active immediately, with line-by-line terminal logs
   full          preflight + train3 + sync-weights
 
 Notes:
@@ -107,10 +108,16 @@ play_dry() {
   uv run .agents/skills/play/scripts/run.py --game "${GAME}" --dry-run --start-active
 }
 
+input_test() {
+  cd "${REPO_ROOT}"
+  echo "[harness] input-test: game=${GAME} duration=15s"
+  uv run .agents/skills/play/scripts/run.py --game "${GAME}" --input-test-seconds 15 --status-lines
+}
+
 play_live() {
   cd "${REPO_ROOT}"
-  echo "[harness] play-live: game=${GAME} (start-active)"
-  uv run .agents/skills/play/scripts/run.py --game "${GAME}" --start-active
+  echo "[harness] play-live: game=${GAME} (start-active, status-lines)"
+  uv run .agents/skills/play/scripts/run.py --game "${GAME}" --start-active --status-lines
 }
 
 case "${MODE}" in
@@ -122,6 +129,9 @@ case "${MODE}" in
     ;;
   sync-weights)
     sync_weights
+    ;;
+  input-test)
+    input_test
     ;;
   play-dry)
     play_dry

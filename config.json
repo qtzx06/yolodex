@@ -1,12 +1,9 @@
 {
-  "project": "space-invaders-v1",
-  "video_url": "https://www.youtube.com/watch?v=tWhQl3mPLq4",
+  "project": "elden-ring-v1",
+  "video_url": "https://www.youtube.com/watch?v=-gF0BNcsxT8&t=39s",
   "classes": [
-    "player_ship",
-    "enemy_invader",
-    "projectile",
-    "shield",
-    "ufo"
+    "bottom_left_item",
+    "player"
   ],
   "target_accuracy": 0.75,
   "max_iterations": 10,
