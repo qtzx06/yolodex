@@ -142,6 +142,7 @@ key fields:
 - run metadata: `runs/<project>/run_manifest.json`
 - label quality report: `runs/<project>/label_qa_report.json`
 - quick status command: `bash yolodex-status.sh` (or `bash yolodex-status.sh --json`)
+  - includes computed `next_action` with recommended command
 - one-shot operator command: `bash yolodex-run.sh`
 
 ## repo layout
