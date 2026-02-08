@@ -140,6 +140,7 @@ key fields:
 - trained weights: `runs/<project>/weights/best.pt`
 - live phase status: `runs/<project>/job_state.json`
 - run metadata: `runs/<project>/run_manifest.json`
+- label quality report: `runs/<project>/label_qa_report.json`
 - quick status command: `bash yolodex-status.sh` (or `bash yolodex-status.sh --json`)
 - one-shot operator command: `bash yolodex-run.sh`
 

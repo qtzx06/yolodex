@@ -37,6 +37,7 @@ def _print_human(
     manifest: dict[str, Any] | None,
     job_state: dict[str, Any] | None,
     eval_results: dict[str, Any] | None,
+    qa_report: dict[str, Any] | None,
 ) -> None:
     print("yolodex status")
     print("")
@@ -82,6 +83,16 @@ def _print_human(
     else:
         print("eval: missing (eval_results.json)")
 
+    print("")
+    if qa_report:
+        print("label_qa:")
+        print(f"  files_checked: {qa_report.get('files_checked', 'n/a')}")
+        print(f"  files_with_errors: {qa_report.get('files_with_errors', 'n/a')}")
+        print(f"  total_errors: {qa_report.get('total_errors', 'n/a')}")
+        print(f"  total_warnings: {qa_report.get('total_warnings', 'n/a')}")
+    else:
+        print("label_qa: missing (label_qa_report.json)")
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Show Yolodex run status.")
@@ -98,6 +109,7 @@ def main() -> int:
     manifest = _safe_read_json(output_dir / "run_manifest.json")
     job_state = _safe_read_json(output_dir / "job_state.json")
     eval_results = _safe_read_json(output_dir / "eval_results.json")
+    qa_report = _safe_read_json(output_dir / "label_qa_report.json")
 
     if args.json:
         payload = {
@@ -105,14 +117,14 @@ def main() -> int:
             "manifest": manifest,
             "job_state": job_state,
             "eval_results": eval_results,
+            "label_qa_report": qa_report,
         }
         print(json.dumps(payload, indent=2))
         return 0
 
-    _print_human(output_dir, manifest, job_state, eval_results)
+    _print_human(output_dir, manifest, job_state, eval_results, qa_report)
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
