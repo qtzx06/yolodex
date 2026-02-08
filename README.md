@@ -57,7 +57,7 @@ requirements:
 1. start codex in repo root
 2. use the `yolodex` skill to gather config
 3. run labeling with subagents when needed
-4. iterate until eval target is met
+4. iterate until eval target is met (fails fast on repeated errors)
 
 example:
 
