@@ -141,6 +141,7 @@ key fields:
 - live phase status: `runs/<project>/job_state.json`
 - run metadata: `runs/<project>/run_manifest.json`
 - label quality report: `runs/<project>/label_qa_report.json`
+- timeline log: `progress.txt` (auto-appended per phase)
 - quick status command: `bash yolodex-status.sh` (or `bash yolodex-status.sh --json`)
   - includes computed `next_action` with recommended command
 - one-shot operator command: `bash yolodex-run.sh`

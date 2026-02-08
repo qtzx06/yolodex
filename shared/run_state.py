@@ -30,6 +30,18 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
+def _progress_path() -> Path:
+    return Path(__file__).resolve().parent.parent / "progress.txt"
+
+
+def _append_progress(line: str) -> None:
+    path = _progress_path()
+    if not path.exists():
+        path.write_text("# Yolodex Progress Log\n", encoding="utf-8")
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(f"{line}\n")
+
+
 def _resolve_output_dir(config: dict[str, Any]) -> Path:
     return Path(config.get("output_dir", "output"))
 
@@ -87,6 +99,7 @@ def mark_phase_running(config: dict[str, Any], phase: str) -> None:
         }
     )
     _write_json(state_path, state)
+    _append_progress(f"[{_now_iso()}] {phase}: running")
 
 
 def mark_phase_done(config: dict[str, Any], phase: str, details: dict[str, Any] | None = None) -> None:
@@ -117,6 +130,11 @@ def mark_phase_done(config: dict[str, Any], phase: str, details: dict[str, Any] 
         }
     )
     _write_json(state_path, state)
+    summary = ""
+    if details:
+        compact = ", ".join(f"{k}={v}" for k, v in details.items())
+        summary = f" ({compact})"
+    _append_progress(f"[{_now_iso()}] {phase}: completed{summary}")
 
 
 def mark_phase_failed(config: dict[str, Any], phase: str, error: str) -> None:
@@ -146,4 +164,4 @@ def mark_phase_failed(config: dict[str, Any], phase: str, error: str) -> None:
         }
     )
     _write_json(state_path, state)
-
+    _append_progress(f"[{_now_iso()}] {phase}: failed ({error})")
