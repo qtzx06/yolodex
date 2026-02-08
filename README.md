@@ -82,6 +82,7 @@ autonomous loop:
 
 ```bash
 bash yolodex-doctor.sh
+bash yolodex-status.sh
 bash yolodex.sh
 ```
 
@@ -139,6 +140,7 @@ key fields:
 - trained weights: `runs/<project>/weights/best.pt`
 - live phase status: `runs/<project>/job_state.json`
 - run metadata: `runs/<project>/run_manifest.json`
+- quick status command: `bash yolodex-status.sh` (or `bash yolodex-status.sh --json`)
 
 ## repo layout
 
