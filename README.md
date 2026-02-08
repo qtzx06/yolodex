@@ -1,6 +1,7 @@
-# Yolodex
+# yolodex
 
-Autonomous YOLO training data generation from gameplay videos. Give it a YouTube URL and target classes — it downloads the video, extracts frames, labels them with a vision LLM, augments the data, trains a YOLO model, evaluates it, and loops until it hits your target accuracy.
+codex-native yolo dataset + training pipeline for gameplay videos.
+main flow is skill-driven orchestration through codex, not ad-hoc scripts.
 
 ```
 YouTube URL + classes
@@ -15,24 +16,24 @@ YouTube URL + classes
                                                          yes -> done
 ```
 
-## Setup
+## codex-first setup
 
 ```bash
 git clone <repo-url> && cd yolodex
 bash setup.sh
 ```
 
-The setup script installs everything: ffmpeg, yt-dlp, uv, Python deps (ultralytics, openai, torch, Pillow). It checks your environment and tells you what's missing.
+the setup script installs ffmpeg, yt-dlp, uv, and python deps (ultralytics/openai/torch/pillow).
 
-**Requirements:**
+**requirements:**
 - macOS or Linux
 - Python 3.11+
-- `OPENAI_API_KEY` environment variable
-- Optional: [Codex CLI](https://github.com/openai/codex) for parallel labeling + autonomous loop
+- [Codex CLI](https://github.com/openai/codex)
+- `OPENAI_API_KEY` (required for `gpt` / optional for `codex` label mode)
 
-## Enable Subagents (Codex)
+## codex integration
 
-If you want to use `call subagent` workflows in this repo, enable Codex collaboration features once:
+enable codex collaboration features once:
 
 ```bash
 codex features enable collab
@@ -41,18 +42,18 @@ codex features enable steer
 codex features list | rg 'collab|child_agents_md|steer'
 ```
 
-Then start a new Codex session in this repo. In Yolodex, `call subagent` for labeling maps to the same orchestrator used by scripts:
+then start codex in this repo. `call subagent` for labeling maps to:
 
 ```bash
 bash .agents/skills/label/scripts/dispatch.sh 4
 ```
 
-If your session does not expose subagents, use the command above directly.
-For no-key labeling, set `"label_mode": "codex"` in `config.json` and run the same command.
+if your session does not expose subagents, run that command directly.
+for no-key labeling, set `"label_mode": "codex"`.
 
-## Quick Start
+## quick start (recommended)
 
-### 1. Configure
+### 1) configure
 
 ```bash
 # Edit config.json
@@ -65,15 +66,24 @@ For no-key labeling, set `"label_mode": "codex"` in `config.json` and run the sa
 }
 ```
 
-### 2. Run
+### 2) run through codex
 
-**Autonomous (recommended):**
+interactive codex flow:
+```text
+$ codex
+> use the yolodex skill to train from this video: https://youtube.com/...
+> classes: player, weapon, vehicle
+> label_mode: codex
+> call subagent label frames with 4 agents
+```
+
+autonomous loop flow:
 ```bash
 bash yolodex.sh
 ```
-Runs the full pipeline in a loop until target accuracy is reached.
+runs codex full-auto iterations until target is met or max iterations is hit.
 
-**Manual (skill by skill):**
+manual fallback (same skills, explicit commands):
 ```bash
 uv run .agents/skills/collect/scripts/run.py       # download + extract frames
 bash .agents/skills/label/scripts/dispatch.sh 4    # label, merge, and auto-generate previews + video
@@ -82,15 +92,7 @@ uv run .agents/skills/train/scripts/run.py          # train YOLO model
 uv run .agents/skills/eval/scripts/run.py           # evaluate model
 ```
 
-**With Codex (interactive):**
-```
-$ codex
-> Train a YOLO model to detect players and weapons from this Fortnite video: https://youtube.com/...
-> call subagent label frames with 4 agents
-```
-Codex reads AGENTS.md, asks for config, runs everything.
-
-### 3. Results
+### 3) outputs
 
 ```bash
 cat output/eval_results.json    # mAP, precision, recall, per-class breakdown
@@ -99,9 +101,9 @@ cd landing && bunx serve .      # web dashboard
 After labeling you can inspect `runs/<project>/frames/preview/` (PNG overlays)
 and `runs/<project>/frames/preview/preview.mp4` for a quick annotated walkthrough.
 
-## How It Works
+## how it works
 
-### Skills Architecture
+### skills architecture (source of truth)
 
 Each pipeline stage is a standalone [Codex skill](https://developers.openai.com/codex/skills/) in `.agents/skills/`:
 
@@ -113,7 +115,7 @@ Each pipeline stage is a standalone [Codex skill](https://developers.openai.com/
 | **train** | Split dataset, generate YAML, train YOLO with ultralytics | `scripts/run.py` |
 | **eval** | Evaluate model, compute mAP@50, identify weakest classes | `scripts/run.py` |
 
-### Parallel Labeling
+### parallel labeling
 
 The label skill can dispatch N concurrent Codex subagents, each in its own git worktree:
 
@@ -130,7 +132,7 @@ bash .agents/skills/label/scripts/dispatch.sh 4
 bash .agents/skills/label/scripts/dispatch.sh 8
 ```
 
-### Ralph Loop
+### codex iteration loop
 
 `yolodex.sh` implements an autonomous iteration loop:
 
