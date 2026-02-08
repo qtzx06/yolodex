@@ -202,12 +202,9 @@ yolodex/
 └── pyproject.toml          # Python project (uv)
 ```
 
-## Sanitized exports
-
-`team_exports/` holds ready-to-share datasets for completed projects.
-Each export includes `dataset/images`, `dataset/labels`, `classes.txt`, overlay previews,
-and a minimal `manifest.json` so downstream teams can consume clean YOLO data without
-touching the full `runs/` tree.
+Generated datasets, previews, model weights, and exports are intentionally kept out of git.
+Run artifacts live under `runs/` (or `output/`) locally and should be shared via release assets
+or external storage when needed.
 
 ## Docs
 

@@ -3,6 +3,13 @@ output/
 *.pt
 *.onnx
 runs/
+team_exports/
+*.zip
+*.mov
+*.mp4
+
+# Frontend build artifacts
+landing/dist/
 
 # Test runs — keep structure + docs, ignore generated artifacts
 tests/**/output/
@@ -10,7 +17,6 @@ tests/**/frames/
 tests/**/weights/
 tests/**/augmented/
 tests/**/dataset/
-tests/**/*.mp4
 tests/**/*.jpg
 tests/**/*.jpeg
 tests/**/*.png

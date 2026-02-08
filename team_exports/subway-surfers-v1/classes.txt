@@ -1,6 +1,0 @@
-player
-train
-coins
-powerup
-obstacle
-barrier
