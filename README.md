@@ -11,7 +11,7 @@
 
 <div align="center">
 
-codex-native yolo dataset + training pipeline for gameplay videos.
+codex-native yolo dataset + training agent skills for gameplay videos.
 
 </div>
 
@@ -42,7 +42,7 @@ flowchart LR
 ## installation
 
 ```bash
-git clone <repo-url> && cd yolodex
+git clone https://github.com/qtzx06/yolodex && cd yolodex
 bash setup.sh
 ```
 
