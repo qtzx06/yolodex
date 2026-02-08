@@ -20,12 +20,17 @@ def split_dataset(
     aug_dir: Path | None,
     dataset_dir: Path,
     train_split: float,
+    seed: int,
 ) -> tuple[Path, Path]:
     """Split labeled images into train/val sets."""
     train_img = dataset_dir / "images" / "train"
     val_img = dataset_dir / "images" / "val"
     train_lbl = dataset_dir / "labels" / "train"
     val_lbl = dataset_dir / "labels" / "val"
+
+    # Rebuild split directories each run to avoid stale file leakage between iterations.
+    if dataset_dir.exists():
+        shutil.rmtree(dataset_dir)
 
     for d in [train_img, val_img, train_lbl, val_lbl]:
         d.mkdir(parents=True, exist_ok=True)
@@ -48,8 +53,11 @@ def split_dataset(
         print("[train] No labeled image pairs found.", file=sys.stderr)
         sys.exit(1)
 
-    random.shuffle(pairs)
+    rng = random.Random(seed)
+    rng.shuffle(pairs)
     split_idx = int(len(pairs) * train_split)
+    if len(pairs) > 1:
+        split_idx = max(1, min(split_idx, len(pairs) - 1))
     train_pairs = pairs[:split_idx]
     val_pairs = pairs[split_idx:]
 
@@ -125,6 +133,11 @@ def main() -> int:
     train_split = config.get("train_split", 0.8)
     yolo_model = config.get("yolo_model", "yolov8n.pt")
     epochs = config.get("epochs", 50)
+    seed = int(config.get("seed", 42))
+
+    if not 0.0 < float(train_split) < 1.0:
+        print("[train] Error: train_split must be between 0 and 1 (exclusive).", file=sys.stderr)
+        return 1
 
     # Load class names
     classes_path = output_dir / "classes.txt"
@@ -141,6 +154,7 @@ def main() -> int:
         aug_dir if aug_dir.exists() else None,
         dataset_dir,
         train_split,
+        seed,
     )
 
     dataset_yaml = generate_dataset_yaml(dataset_dir, classes, output_dir / "dataset.yaml")

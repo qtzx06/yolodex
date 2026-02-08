@@ -15,5 +15,6 @@
   "model": "gpt-5-nano",
   "yolo_model": "yolov8n.pt",
   "epochs": 50,
-  "train_split": 0.8
+  "train_split": 0.8,
+  "seed": 42
 }

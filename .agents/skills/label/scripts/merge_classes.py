@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Merge class maps from parallel subagent worktrees into a unified classes.txt.
-
-Also re-maps class IDs in label .txt files to match the unified mapping.
-"""
+"""Merge class maps from parallel subagent worktrees into a unified classes.txt."""
 
 from __future__ import annotations
 
@@ -38,9 +35,6 @@ def main() -> int:
         for name in classes_file.read_text().strip().split("\n"):
             if name and name not in unified:
                 unified[name] = len(unified)
-
-    # Also scan frames_dir for any classes.txt from subagents that already merged
-    # (labels were already copied back by dispatch.sh)
 
     if not unified:
         print("[merge] No classes found. Nothing to merge.")

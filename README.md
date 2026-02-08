@@ -93,8 +93,7 @@ Codex reads AGENTS.md, asks for config, runs everything.
 ### 3. Results
 
 ```bash
-cat output/eval_results.json    # mAP, precision, recall, per-class breakdown
-cd landing && bunx serve .      # web dashboard
+cat runs/<project>/eval_results.json   # mAP, precision, recall, per-class breakdown
 ```
 After labeling you can inspect `runs/<project>/frames/preview/` (PNG overlays)
 and `runs/<project>/frames/preview/preview.mp4` for a quick annotated walkthrough.
@@ -118,7 +117,7 @@ Each pipeline stage is a standalone [Codex skill](https://developers.openai.com/
 The label skill can dispatch N concurrent Codex subagents, each in its own git worktree:
 
 1. Frames split into N batches
-2. Each batch gets a git worktree at `/tmp/yolodex-workers/agent-N/`
+2. Each batch gets a git worktree under `/tmp/yolodex-workers/run-*/agent-N/`
 3. `codex exec --full-auto -C <worktree>` labels each batch concurrently
 4. Results merge back, class maps unified
 
@@ -136,7 +135,7 @@ bash .agents/skills/label/scripts/dispatch.sh 8
 
 1. Each iteration calls `codex exec --full-auto` which reads `AGENTS.md`
 2. Codex checks what exists (video? frames? labels? model? eval?) and runs the next phase
-3. After eval, if accuracy >= target, emits `<promise>COMPLETE</promise>` and exits
+3. After eval, loop exits when target is met (from `<promise>COMPLETE</promise>` or `eval_results.json`)
 4. If below target, loops back to re-label failures and retrain
 5. Cross-iteration memory stored in `progress.txt`
 
@@ -178,6 +177,7 @@ Change in `config.json`:
 | `yolo_model` | `"yolov8n.pt"` | YOLO base model for training |
 | `epochs` | `50` | Training epochs per iteration |
 | `train_split` | `0.8` | Train/val split ratio |
+| `seed` | `42` | Random seed for deterministic train/val split |
 
 ## Project Structure
 
@@ -192,7 +192,6 @@ yolodex/
 │   └── eval/               # mAP metrics + failure analysis
 ├── shared/utils.py         # Shared Python utils (BoundingBox, helpers)
 ├── pipeline/main.py        # Original monolith (preserved as reference)
-├── landing/                # Web dashboard (HTML/CSS)
 ├── docs/                   # Detailed documentation
 ├── yolodex.sh              # Ralph-style autonomous loop
 ├── setup.sh                # Install script
