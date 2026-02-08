@@ -6,6 +6,7 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/qtzx06/yolodex?style=for-the-badge&labelColor=ffffff&color=8ecaff)
 ![GitHub repo size](https://img.shields.io/github/repo-size/qtzx06/yolodex?style=for-the-badge&labelColor=ffffff&color=8ecaff)
 ![License: MIT](https://img.shields.io/badge/license-MIT-8ecaff?style=for-the-badge&labelColor=ffffff)
+![PRs welcome](https://img.shields.io/badge/PRs-welcome-8ecaff?style=for-the-badge&labelColor=ffffff)
 
 </div>
 
@@ -164,6 +165,22 @@ yolodex/
 - [docs/skills.md](docs/skills.md)
 - [docs/architecture.md](docs/architecture.md)
 - [docs/changelog.md](docs/changelog.md)
+
+## contributing
+
+contributions are welcome.
+
+standard flow:
+
+1. fork the repo and create a branch from `main`
+2. keep changes scoped and explain the why in your pr
+3. run relevant checks before opening the pr
+4. open a pull request with:
+   - clear summary
+   - test/validation notes
+   - screenshots/log snippets when relevant
+
+if you’re planning a bigger change, open an issue first so we can align on direction.
 
 ## license
 
