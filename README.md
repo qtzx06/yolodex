@@ -45,6 +45,7 @@ flowchart LR
 ```bash
 git clone https://github.com/qtzx06/yolodex && cd yolodex
 bash setup.sh
+bash yolodex-doctor.sh
 ```
 
 requirements:
@@ -80,6 +81,7 @@ bash .agents/skills/label/scripts/dispatch.sh 4
 autonomous loop:
 
 ```bash
+bash yolodex-doctor.sh
 bash yolodex.sh
 ```
 

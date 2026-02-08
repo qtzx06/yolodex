@@ -140,6 +140,7 @@ fi
 # --- Make scripts executable ---
 
 chmod +x "$SCRIPT_DIR/yolodex.sh"
+chmod +x "$SCRIPT_DIR/yolodex-doctor.sh"
 chmod +x "$SCRIPT_DIR/.agents/skills/label/scripts/dispatch.sh"
 
 # --- Done ---
@@ -156,6 +157,7 @@ echo "  2. Edit config.json with your video URL and classes:"
 echo "     {\"video_url\": \"https://youtube.com/...\", \"classes\": [\"player\", \"weapon\"]}"
 echo ""
 echo "  3. Run the pipeline:"
+echo "     bash yolodex-doctor.sh   # preflight checks"
 echo "     bash yolodex.sh          # autonomous loop"
 echo "     # OR run skills manually:"
 echo "     uv run .agents/skills/collect/scripts/run.py"
