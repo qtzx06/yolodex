@@ -48,7 +48,7 @@ bash setup.sh
 ```
 
 requirements:
-- macos or linux
+- macos, linux, or windows
 - python 3.11+
 - [codex cli](https://github.com/openai/codex) (or the codex app)
 
@@ -63,16 +63,14 @@ example:
 
 ```text
 $ codex
-> use the yolodex skill to train from this video: https://youtube.com/...
-> use the yolodex skill to train from this local footage: ./gameplay.mp4
-> use the yolodex skill to train from these frames: ./my_frames/
+> use the yolodex skill to train a detector from this video: https://youtube.com/...
 > classes: player, weapon, vehicle
 ```
 
-subagent dispatch command:
+codex determines how many subagents to spawn for labeling based on the dataset size:
 
 ```bash
-bash .agents/skills/label/scripts/dispatch.sh 4
+bash .agents/skills/label/scripts/dispatch.sh <n>
 ```
 
 ## run modes
@@ -186,4 +184,6 @@ if you’re planning a bigger change, open an issue first so we can align on dir
 
 mit
 
-made with love at openai ♡
+---
+
+<p align="center">made with love at openai ♡</p>
