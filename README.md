@@ -12,7 +12,7 @@
 
 <div align="center">
 
-codex-native yolo dataset + training agent skills for gameplay videos.
+codex-native yolo dataset + training agent skills for any unlabeled data. codex skills help determine how to properly label and splice your data.
 
 </div>
 
@@ -22,7 +22,7 @@ codex-native yolo dataset + training agent skills for gameplay videos.
 
 ```mermaid
 flowchart LR
-  A["video source (youtube or local)"] --> B["collect"]
+  A["data source (any unlabeled data)"] --> B["collect"]
   B --> C["label"]
   C --> D["augment"]
   D --> E["train"]
@@ -50,7 +50,7 @@ bash setup.sh
 requirements:
 - macos or linux
 - python 3.11+
-- [codex cli](https://github.com/openai/codex)
+- [codex cli](https://github.com/openai/codex) (or the codex app)
 
 ## codex workflow (main path)
 
@@ -64,9 +64,9 @@ example:
 ```text
 $ codex
 > use the yolodex skill to train from this video: https://youtube.com/...
+> use the yolodex skill to train from this local footage: ./gameplay.mp4
+> use the yolodex skill to train from these frames: ./my_frames/
 > classes: player, weapon, vehicle
-> label_mode: codex
-> call subagent label frames with 4 agents
 ```
 
 subagent dispatch command:
@@ -186,4 +186,4 @@ if you’re planning a bigger change, open an issue first so we can align on dir
 
 mit
 
-made with love at openai <3
+made with love at openai ♡
