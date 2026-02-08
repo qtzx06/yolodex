@@ -81,9 +81,9 @@ bash .agents/skills/label/scripts/dispatch.sh 4
 autonomous loop:
 
 ```bash
-bash yolodex-doctor.sh
-bash yolodex-status.sh
-bash yolodex.sh
+bash yolodex-run.sh
+# optional override:
+bash yolodex-run.sh 20
 ```
 
 manual skills:
@@ -141,6 +141,7 @@ key fields:
 - live phase status: `runs/<project>/job_state.json`
 - run metadata: `runs/<project>/run_manifest.json`
 - quick status command: `bash yolodex-status.sh` (or `bash yolodex-status.sh --json`)
+- one-shot operator command: `bash yolodex-run.sh`
 
 ## repo layout
 

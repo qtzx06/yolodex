@@ -142,6 +142,7 @@ fi
 chmod +x "$SCRIPT_DIR/yolodex.sh"
 chmod +x "$SCRIPT_DIR/yolodex-doctor.sh"
 chmod +x "$SCRIPT_DIR/yolodex-status.sh"
+chmod +x "$SCRIPT_DIR/yolodex-run.sh"
 chmod +x "$SCRIPT_DIR/.agents/skills/label/scripts/dispatch.sh"
 
 # --- Done ---
@@ -160,7 +161,8 @@ echo ""
 echo "  3. Run the pipeline:"
 echo "     bash yolodex-doctor.sh   # preflight checks"
 echo "     bash yolodex-status.sh   # current run status"
-echo "     bash yolodex.sh          # autonomous loop"
+echo "     bash yolodex-run.sh      # doctor + status + autonomous loop"
+echo "     # optional: bash yolodex-run.sh 20"
 echo "     # OR run skills manually:"
 echo "     uv run .agents/skills/collect/scripts/run.py"
 echo "     uv run .agents/skills/label/scripts/run.py"

@@ -73,22 +73,6 @@ for i in $(seq 1 $MAX_ITERATIONS); do
 
   consecutive_failures=0
 
-  if [ -f "$JOB_STATE_PATH" ]; then
-    if python3 - <<'PY' "$JOB_STATE_PATH"
-import json
-import sys
-from pathlib import Path
-
-path = Path(sys.argv[1])
-payload = json.loads(path.read_text(encoding="utf-8"))
-raise SystemExit(0 if str(payload.get("status", "")).lower() == "failed" else 1)
-PY
-    then
-      echo "Pipeline reported failed state in job_state.json. Stopping."
-      exit 1
-    fi
-  fi
-
   if echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>"; then
     echo "Target accuracy reached at iteration $i!"
     exit 0
@@ -107,6 +91,22 @@ PY
     then
       echo "Target accuracy reached at iteration $i (from eval_results.json)."
       exit 0
+    fi
+  fi
+
+  if [ -f "$JOB_STATE_PATH" ]; then
+    if python3 - <<'PY' "$JOB_STATE_PATH"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+payload = json.loads(path.read_text(encoding="utf-8"))
+raise SystemExit(0 if str(payload.get("status", "")).lower() == "failed" else 1)
+PY
+    then
+      echo "Pipeline reported failed state in job_state.json. Stopping."
+      exit 1
     fi
   fi
   sleep 2
