@@ -135,6 +135,8 @@ key fields:
 - frames: `runs/<project>/frames/`
 - label previews: `runs/<project>/frames/preview/`
 - trained weights: `runs/<project>/weights/best.pt`
+- live phase status: `runs/<project>/job_state.json`
+- run metadata: `runs/<project>/run_manifest.json`
 
 ## repo layout
 

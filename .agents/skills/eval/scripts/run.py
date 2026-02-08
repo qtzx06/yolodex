@@ -10,21 +10,31 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 from shared.utils import load_config
+from shared.run_state import (
+    init_run_manifest,
+    mark_phase_done,
+    mark_phase_failed,
+    mark_phase_running,
+)
 
 
 def main() -> int:
     config = load_config()
+    init_run_manifest(config)
+    mark_phase_running(config, "eval")
     output_dir = Path(config.get("output_dir", "output"))
     weights_dir = output_dir / "weights"
     best_pt = weights_dir / "best.pt"
     target_accuracy = config.get("target_accuracy", 0.75)
 
     if not best_pt.exists():
+        mark_phase_failed(config, "eval", "best.pt not found.")
         print("[eval] Error: best.pt not found. Run train skill first.", file=sys.stderr)
         return 1
 
     dataset_yaml = output_dir / "dataset.yaml"
     if not dataset_yaml.exists():
+        mark_phase_failed(config, "eval", "dataset.yaml not found.")
         print("[eval] Error: dataset.yaml not found. Run train skill first.", file=sys.stderr)
         return 1
 
@@ -77,6 +87,15 @@ def main() -> int:
     if per_class:
         print(f"[eval] Weakest classes: {', '.join(eval_results['weakest_classes'])}")
     print(f"[eval] Results saved to {results_path}")
+    mark_phase_done(
+        config,
+        "eval",
+        {
+            "results_path": str(results_path),
+            "map50": round(map50, 4),
+            "meets_target": meets_target,
+        },
+    )
 
     return 0
 

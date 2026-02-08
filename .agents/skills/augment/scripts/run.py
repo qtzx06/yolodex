@@ -13,6 +13,12 @@ from PIL import Image, ImageEnhance, ImageFilter
 import numpy as np
 
 from shared.utils import load_config
+from shared.run_state import (
+    init_run_manifest,
+    mark_phase_done,
+    mark_phase_failed,
+    mark_phase_running,
+)
 
 
 def flip_horizontal(img: Image.Image, label_lines: list[str]) -> tuple[Image.Image, list[str]]:
@@ -51,6 +57,8 @@ def add_noise(img: Image.Image, intensity: float = 15.0) -> Image.Image:
 
 def main() -> int:
     config = load_config()
+    init_run_manifest(config)
+    mark_phase_running(config, "augment")
     output_dir = Path(config.get("output_dir", "output"))
     frames_dir = output_dir / "frames"
     aug_dir = output_dir / "augmented"
@@ -60,6 +68,7 @@ def main() -> int:
     labeled = [f for f in frames if f.with_suffix(".txt").exists()]
 
     if not labeled:
+        mark_phase_failed(config, "augment", "No labeled frames found.")
         print("[augment] No labeled frames found. Run label skill first.", file=sys.stderr)
         return 1
 
@@ -109,6 +118,15 @@ def main() -> int:
         count += 1
 
     print(f"[augment] Generated {count} augmented samples in {aug_dir}")
+    mark_phase_done(
+        config,
+        "augment",
+        {
+            "input_labeled_frames": len(labeled),
+            "augmented_samples": count,
+            "augmented_dir": str(aug_dir),
+        },
+    )
     return 0
 
 

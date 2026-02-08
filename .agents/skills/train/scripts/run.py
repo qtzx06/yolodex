@@ -13,6 +13,12 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 from shared.utils import load_config
+from shared.run_state import (
+    init_run_manifest,
+    mark_phase_done,
+    mark_phase_failed,
+    mark_phase_running,
+)
 
 
 def split_dataset(
@@ -117,6 +123,8 @@ def train_model(
 
 def main() -> int:
     config = load_config()
+    init_run_manifest(config)
+    mark_phase_running(config, "train")
     output_dir = Path(config.get("output_dir", "output"))
     frames_dir = output_dir / "frames"
     aug_dir = output_dir / "augmented"
@@ -129,6 +137,7 @@ def main() -> int:
     # Load class names
     classes_path = output_dir / "classes.txt"
     if not classes_path.exists():
+        mark_phase_failed(config, "train", "classes.txt not found.")
         print("[train] Error: classes.txt not found. Run label skill first.", file=sys.stderr)
         return 1
 
@@ -148,6 +157,15 @@ def main() -> int:
     train_model(dataset_yaml, yolo_model, epochs, weights_dir)
 
     print("[train] Training complete.")
+    mark_phase_done(
+        config,
+        "train",
+        {
+            "dataset_yaml": str(dataset_yaml),
+            "weights_path": str(weights_dir / "best.pt"),
+            "epochs": epochs,
+        },
+    )
     return 0
 
 

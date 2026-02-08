@@ -11,6 +11,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 from shared.utils import PipelineError, load_config, run_command
+from shared.run_state import (
+    init_run_manifest,
+    mark_phase_done,
+    mark_phase_failed,
+    mark_phase_running,
+)
 
 
 def is_local_file(video_url: str) -> bool:
@@ -66,8 +72,11 @@ def extract_frames(video_path: Path, frames_dir: Path, fps: int = 1) -> list[Pat
 
 def main() -> int:
     config = load_config()
+    init_run_manifest(config)
+    mark_phase_running(config, "collect")
     video_url = config["video_url"]
     if not video_url:
+        mark_phase_failed(config, "collect", "video_url is empty in config.json")
         print("Error: video_url is empty in config.json", file=sys.stderr)
         return 1
 
@@ -88,7 +97,17 @@ def main() -> int:
         print(f"[collect] Extracting frames at {fps} FPS with ffmpeg...")
         frames = extract_frames(video_path, frames_dir, fps=fps)
         print(f"[collect] Extracted {len(frames)} frames to {frames_dir}")
+        mark_phase_done(
+            config,
+            "collect",
+            {
+                "frames_extracted": len(frames),
+                "frames_dir": str(frames_dir),
+                "video_path": str(video_path),
+            },
+        )
     except PipelineError as exc:
+        mark_phase_failed(config, "collect", str(exc))
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     return 0

@@ -22,6 +22,12 @@ from shared.utils import (
     load_config,
     read_image_dimensions,
 )
+from shared.run_state import (
+    init_run_manifest,
+    mark_phase_done,
+    mark_phase_failed,
+    mark_phase_running,
+)
 
 MULTI_CLASS_PROMPT_TEMPLATE = """
 Detect every visible object in this image and return bounding boxes.
@@ -185,11 +191,13 @@ def write_class_map(class_to_id: dict[str, int], output_path: Path) -> None:
 
 def main() -> int:
     api_key = os.getenv("OPENAI_API_KEY")
+    config = load_config()
+    init_run_manifest(config)
+    mark_phase_running(config, "label")
     if not api_key:
+        mark_phase_failed(config, "label", "OPENAI_API_KEY is not set.")
         print("Error: OPENAI_API_KEY is not set.", file=sys.stderr)
         return 1
-
-    config = load_config()
     model = config.get("model", "gpt-5-nano")
     classes = config.get("classes", [])
     output_dir = Path(config.get("output_dir", "output"))
@@ -197,12 +205,14 @@ def main() -> int:
 
     frames = sorted(frames_dir.glob("*.jpg"))
     if not frames:
+        mark_phase_failed(config, "label", "No frames found. Run collect first.")
         print("Error: No frames found. Run the collect skill first.", file=sys.stderr)
         return 1
 
     # Skip already-labeled frames
     unlabeled = [f for f in frames if not f.with_suffix(".txt").exists()]
     if not unlabeled:
+        mark_phase_done(config, "label", {"frames_labeled": 0, "skipped": "already_labeled"})
         print("[label] All frames already labeled.")
         return 0
 
@@ -234,12 +244,21 @@ def main() -> int:
                 boxes = detect_objects(client, model, frame_path, fallback_prompt)
             write_yolo_labels(frame_path, boxes, class_to_id)
     except PipelineError as exc:
+        mark_phase_failed(config, "label", str(exc))
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
     write_class_map(class_to_id, class_map_path)
     print(f"[label] Done. {len(unlabeled)} frames labeled. Classes: {class_map_path}")
     _maybe_generate_previews(output_dir)
+    mark_phase_done(
+        config,
+        "label",
+        {
+            "frames_labeled": len(unlabeled),
+            "classes_path": str(class_map_path),
+        },
+    )
     return 0
 
 
