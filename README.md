@@ -186,4 +186,4 @@ if you’re planning a bigger change, open an issue first so we can align on dir
 
 mit
 
-made with love at openai ❤️
+made with love at openai <3
