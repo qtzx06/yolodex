@@ -67,15 +67,15 @@ uv run .agents/skills/eval/scripts/run.py`}</pre>
           </article>
         </div>
 
-        <details className="advanced-options glass">
-          <summary>results + key things to know</summary>
+        <section className="advanced-options glass" aria-label="results and key things to know">
+          <p className="advanced-options-title">results + key things to know</p>
           <p>
             `runs/&lt;project&gt;/eval_results.json` has mAP/precision/recall and class breakdown.
             `runs/&lt;project&gt;/weights/best.pt` is your trained model. output is isolated per project.
             gpt mode is easiest, gemini has native bbox, cua+sam is best quality but slower. for
             parallel labeling: `bash .agents/skills/label/scripts/dispatch.sh 8`.
           </p>
-        </details>
+        </section>
       </section>
 
       <footer className="site-footer" id="credits">

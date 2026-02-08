@@ -1,0 +1,16 @@
+{
+  "name": "yolodex",
+  "short_name": "yolodex",
+  "description": "autonomous yolo training data generation from gameplay videos.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#091320",
+  "theme_color": "#091320",
+  "icons": [
+    {
+      "src": "/codex.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

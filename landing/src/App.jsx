@@ -5,6 +5,9 @@ import VignetteOverlay from './components/VignetteOverlay'
 import LoadingScreen from './components/LoadingScreen'
 import GradualBlur from './components/GradualBlur'
 import BentoSection from './components/BentoSection'
+import WhyYolodex from './components/WhyYolodex'
+import OnboardingSection from './components/OnboardingSection'
+import Footer from './components/Footer'
 import CVOverlay from './components/CVOverlay'
 import pipelineIngest from './assets/pipeline-ingest.svg'
 import pipelineAnnotate from './assets/pipeline-annotate.svg'
@@ -148,150 +151,95 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    const canonicalHref = `${window.location.origin}${window.location.pathname}`
+
+    let canonical = document.querySelector('link[rel="canonical"]')
+    if (!canonical) {
+      canonical = document.createElement('link')
+      canonical.setAttribute('rel', 'canonical')
+      document.head.appendChild(canonical)
+    }
+    canonical.setAttribute('href', canonicalHref)
+
+    const setMeta = (attribute, key, value) => {
+      let meta = document.querySelector(`meta[${attribute}="${key}"]`)
+      if (!meta) {
+        meta = document.createElement('meta')
+        meta.setAttribute(attribute, key)
+        document.head.appendChild(meta)
+      }
+      meta.setAttribute('content', value)
+    }
+
+    setMeta('property', 'og:url', canonicalHref)
+    setMeta('name', 'twitter:url', canonicalHref)
+  }, [])
+
   return (
     <>
-      {renderScene ? (
-        <main className="app-shell" style={{ '--scroll-progress': scrollProgress }}>
-          <VolumetricBackground style={{ opacity: cloudOpacity }} />
-          <nav className="top-nav">
-            <a href="#how">see it in action</a>
-            <a href="#trust">why yolodex</a>
-            <a href="#onboarding">get started</a>
-            <a href="#footer">github</a>
-          </nav>
-          <section className="hero-stage">
-            <CodexOrb />
-            <header className="hero-header">
-              <p className="hero-eyebrow">autonomous yolo training data generation</p>
-              <h1 className="hero-title" aria-label="yolodex" id="top">
-                <span>{typedTitle || ' '}</span>
-                <span className="typing-cursor" aria-hidden="true">
-                  |
-                </span>
-              </h1>
-              <p className="hero-subtitle">
-                turn gameplay footage into production-ready yolo datasets in minutes, not days of manual labeling.
-              </p>
-              <p className="hero-sub-kpi">engine-agnostic footage • yolo txt labels • train/eval loop built in</p>
-              <div className="hero-actions">
-                <a className="hero-btn hero-btn-primary" href="#onboarding">
-                  start onboarding
-                </a>
-                <a className="hero-btn hero-btn-secondary" href="#how">
-                  see live demo
-                </a>
-                <a
-                  className="hero-btn hero-btn-secondary"
-                  href="https://github.com/qtzx06/yolodex"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  github repo
-                </a>
-              </div>
-            </header>
-            <a className="scroll-cue" href="#how" aria-label="scroll to how it works">
-              <span>scroll</span>
-              <span className="scroll-cue-arrow" aria-hidden="true">
-                ↓
+      <main className="app-shell" style={{ '--scroll-progress': scrollProgress }}>
+        {renderScene ? <VolumetricBackground style={{ opacity: cloudOpacity }} /> : null}
+        <section className="hero-stage">
+          <CodexOrb />
+          <header className="hero-header">
+            <p className="hero-eyebrow">autonomous yolo training data generation</p>
+            <h1 className="hero-title" aria-label="yolodex" id="top">
+              <span>{loading ? 'yolodex' : typedTitle || 'yolodex'}</span>
+              <span className="typing-cursor" aria-hidden="true">
+                |
               </span>
-            </a>
-          </section>
-          <BentoSection
-            pipelineIngest={pipelineIngest}
-            pipelineAnnotate={pipelineAnnotate}
-            pipelineTrain={pipelineTrain}
-          />
-          <section className="section-wrap reveal" id="trust">
-            <p className="section-kicker">why yolodex</p>
-            <h2 className="section-title">faster than manual labeling, built for iteration</h2>
-            <div className="trust-grid">
-              <article className="trust-item glass reveal">
-                <h3>time savings</h3>
-                <p>automates collect → label → augment → train → eval with one loop command.</p>
-              </article>
-              <article className="trust-item glass reveal">
-                <h3>supported inputs</h3>
-                <p>works with gameplay footage regardless of engine (unity, unreal, custom) since input is video.</p>
-              </article>
-              <article className="trust-item glass reveal">
-                <h3>model stack</h3>
-                <p>default training on yolov8n with configurable modes and dataset controls in `config.json`.</p>
-              </article>
-              <article className="trust-item glass reveal">
-                <h3>open workflow</h3>
-                <p>skill-based architecture, project-isolated runs, and codex-native automation via `AGENTS.md`.</p>
-              </article>
-            </div>
-          </section>
-          <section className="onboarding-section reveal" id="onboarding">
-            <p className="section-kicker">onboarding</p>
-            <h2 className="section-title">streamlined teammate setup</h2>
-            <div className="onboarding-flow">
-              <article className="flow-step reveal">
-                <p className="flow-index">01</p>
-                <div className="flow-body">
-                  <p className="step-label">clone + install (2 min)</p>
-                  <pre>{`git clone <repo-url> && cd yolodex
-bash setup.sh`}</pre>
-                </div>
-              </article>
-              <article className="flow-step reveal">
-                <p className="flow-index">02</p>
-                <div className="flow-body">
-                  <p className="step-label">create .env</p>
-                  <pre>{`OPENAI_API_KEY=sk-...
-GEMINI_API_KEY=... # optional`}</pre>
-                </div>
-              </article>
-              <article className="flow-step reveal">
-                <p className="flow-index">03</p>
-                <div className="flow-body">
-                  <p className="step-label">configure project/classes</p>
-                  <pre>{`{
-  "project": "fortnite-clips",
-  "video_url": "https://youtube.com/...",
-  "classes": ["player", "weapon"],
-  "label_mode": "gpt | gemini | cua+sam"
-}`}</pre>
-                </div>
-              </article>
-              <article className="flow-step reveal" id="run-it">
-                <p className="flow-index">04</p>
-                <div className="flow-body">
-                  <p className="step-label">run</p>
-                  <pre>{`source .env && bash yolodex.sh`}</pre>
-                </div>
-              </article>
-            </div>
-          </section>
-          <footer className="site-footer reveal" id="footer">
-            <p>built at openai codex hackathon</p>
-            <p>stephen hung • joshua lin • ryan ni • philip chen</p>
-            <p>
-              <a href="https://github.com/" target="_blank" rel="noreferrer">
-                github
-              </a>{' '}
-              •{' '}
-              <a href="#onboarding">docs</a> •{' '}
-              <a href="mailto:partnercomms@openai.com">contact</a>
+            </h1>
+            <p className="hero-subtitle">
+              turn gameplay footage into production-ready yolo datasets in minutes, not days of manual labeling.
             </p>
-          </footer>
-          <GradualBlur
-            target="page"
-            position="bottom"
-            height="8rem"
-            strength={2.2}
-            divCount={6}
-            curve="bezier"
-            exponential
-            opacity={0.9}
-            zIndex={-94}
-          />
-          <VignetteOverlay />
-          <CVOverlay active={showCVOverlay} targets={cvTargets} />
-        </main>
-      ) : null}
+            <p className="hero-sub-kpi">engine-agnostic footage • yolo txt labels • train/eval loop built in</p>
+            <div className="hero-actions">
+              <a className="hero-btn hero-btn-primary" href="#onboarding">
+                start onboarding
+              </a>
+              <a className="hero-btn hero-btn-secondary" href="#how">
+                see live demo
+              </a>
+              <a
+                className="hero-btn hero-btn-secondary"
+                href="https://github.com/qtzx06/yolodex"
+                target="_blank"
+                rel="noreferrer"
+              >
+                github repo
+              </a>
+            </div>
+          </header>
+          <a className="scroll-cue" href="#how" aria-label="scroll to how it works">
+            <span>scroll</span>
+            <span className="scroll-cue-arrow" aria-hidden="true">
+              ↓
+            </span>
+          </a>
+        </section>
+        <BentoSection
+          pipelineIngest={pipelineIngest}
+          pipelineAnnotate={pipelineAnnotate}
+          pipelineTrain={pipelineTrain}
+        />
+        <WhyYolodex />
+        <OnboardingSection />
+        <GradualBlur
+          target="page"
+          position="bottom"
+          height="8rem"
+          strength={2.2}
+          divCount={6}
+          curve="bezier"
+          exponential
+          opacity={0.9}
+          zIndex={2}
+        />
+        <Footer />
+        <VignetteOverlay />
+        <CVOverlay active={showCVOverlay} targets={cvTargets} />
+      </main>
       <LoadingScreen visible={loading} />
     </>
   )

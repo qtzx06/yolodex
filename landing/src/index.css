@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=space+grotesk:wght@400;500;600;700&family=ibm+plex+mono:wght@400;500&display=swap');
 
 @font-face {
   font-family: 'MD Thermochrome';
@@ -11,15 +11,31 @@
 }
 
 :root {
-  font-family: 'Inter', 'Segoe UI', sans-serif;
-  font-weight: 200;
-  color: #f4f7ff;
-  background-color: #050a14;
+  --bg-0: #060b16;
+  --bg-1: #0c1728;
+  --surface-0: rgba(15, 25, 40, 0.68);
+  --surface-1: rgba(20, 33, 54, 0.78);
+  --surface-2: rgba(26, 40, 66, 0.9);
+  --text-0: #f3f7ff;
+  --text-1: #d0ddf5;
+  --text-2: #9ab0d7;
+  --line-0: rgba(163, 196, 245, 0.28);
+  --line-1: rgba(133, 170, 229, 0.2);
+  --accent-0: #8fd1ff;
+  --accent-1: #5fa6ff;
+  --accent-warm: #ffb16d;
+  --radius-s: 10px;
+  --radius-m: 14px;
+  --radius-l: 20px;
+
+  font-family: 'Space Grotesk', 'Avenir Next', 'Segoe UI', sans-serif;
+  font-weight: 400;
+  color: var(--text-0);
+  background-color: var(--bg-0);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: 0.02em;
 }
 
 * {
@@ -44,42 +60,57 @@ html {
 body {
   overflow-x: hidden;
   overflow-y: visible;
-  background: #050a14;
+  background: var(--bg-0);
+  color: var(--text-0);
   text-transform: lowercase;
-  font-weight: 200;
+}
+
+code,
+pre,
+.output-format,
+.code-content code {
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+}
+
+button,
+a {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(143, 209, 255, 0.85);
+  outline-offset: 2px;
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: var(--surface-0);
+  border: 1px solid var(--line-0);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
 .glass-strong {
-  background: rgba(255, 255, 255, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.36);
+  background: var(--surface-1);
+  border: 1px solid rgba(173, 204, 255, 0.34);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
 
 .glass-dark {
-  background: rgba(10, 18, 38, 0.65);
-  border: 1px solid rgba(120, 160, 255, 0.2);
+  background: rgba(9, 17, 31, 0.72);
+  border: 1px solid var(--line-1);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
 .text-stroke {
   color: transparent;
-  -webkit-text-stroke: 1.5px rgba(246, 251, 255, 0.92);
+  -webkit-text-stroke: 1.2px rgba(246, 251, 255, 0.92);
 }
 
 .text-glow {
   text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.52),
-    0 4px 12px rgba(0, 0, 0, 0.46),
-    0 8px 22px rgba(0, 0, 0, 0.34),
-    0 0 18px rgba(156, 188, 255, 0.24),
-    0 0 36px rgba(122, 162, 255, 0.2);
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 8px 26px rgba(20, 68, 132, 0.4),
+    0 0 32px rgba(122, 186, 255, 0.2);
 }

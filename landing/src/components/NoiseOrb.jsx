@@ -65,7 +65,12 @@ float snoise(vec3 v) {
 }
 `
 
-function createDotTexture(sizePx = 32) {
+function readThemeColor(style, varName, fallback) {
+  const value = style.getPropertyValue(varName).trim()
+  return value || fallback
+}
+
+function createDotTexture(sizePx = 32, colors = ['#f3f7ff', '#8fd1ff', '#5fa6ff']) {
   const sizeHalf = sizePx * 0.5
   const canvas = document.createElement('canvas')
   canvas.width = sizePx
@@ -74,9 +79,9 @@ function createDotTexture(sizePx = 32) {
   if (!ctx) return new THREE.CanvasTexture(canvas)
 
   const gradient = ctx.createRadialGradient(sizeHalf, sizeHalf, 0, sizeHalf, sizeHalf, sizeHalf)
-  gradient.addColorStop(0, '#d8e8ff')
-  gradient.addColorStop(0.45, '#7aa2ff')
-  gradient.addColorStop(1, '#2946d9')
+  gradient.addColorStop(0, colors[0])
+  gradient.addColorStop(0.48, colors[1])
+  gradient.addColorStop(1, colors[2])
 
   const circle = new Path2D()
   circle.arc(sizeHalf, sizeHalf, sizeHalf, 0, 2 * Math.PI)
@@ -158,6 +163,13 @@ export default function NoiseOrb({ size = 280 }) {
     )
     camera.position.z = 2
 
+    const rootStyle = window.getComputedStyle(document.documentElement)
+    const dotColors = [
+      readThemeColor(rootStyle, '--text-0', '#f3f7ff'),
+      readThemeColor(rootStyle, '--accent-0', '#8fd1ff'),
+      readThemeColor(rootStyle, '--accent-1', '#5fa6ff'),
+    ]
+
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
     renderer.setClearColor(0x000000, 0)
@@ -170,7 +182,7 @@ export default function NoiseOrb({ size = 280 }) {
 
     const geometry = new THREE.IcosahedronGeometry(1, detail)
     const material = new THREE.PointsMaterial({
-      map: createDotTexture(),
+      map: createDotTexture(32, dotColors),
       blending: THREE.NormalBlending,
       color: 0xffffff,
       opacity: 0.86,

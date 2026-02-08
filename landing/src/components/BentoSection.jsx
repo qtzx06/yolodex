@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import ingestFootageGif from '../assets/ingest-footage.gif'
+import autoAnnotateGif from '../assets/auto-annotate.gif'
+import exportTrainImage from '../assets/export-train.png'
 import './BentoSection.css'
 
 export default function BentoSection({
@@ -7,6 +10,11 @@ export default function BentoSection({
   pipelineTrain
 }) {
   const [activeStage, setActiveStage] = useState(2)
+  const stageDurations = {
+    1: 2800,
+    2: 4200,
+    3: 2400,
+  }
 
   const stages = [
     {
@@ -14,6 +22,7 @@ export default function BentoSection({
       title: "ingest footage",
       description: "youtube urls or local mp4 files",
       icon: pipelineIngest,
+      previewMedia: ingestFootageGif,
       output: "raw frames extracted"
     },
     {
@@ -21,16 +30,26 @@ export default function BentoSection({
       title: "auto annotate",
       description: "parallel labeling with ai models",
       icon: pipelineAnnotate,
+      previewMedia: autoAnnotateGif,
       output: "bbox annotations generated"
     },
     {
       index: 3,
       title: "export + train",
-      description: "yolo format with eval metrics",
+      description: "yolo export and model training",
       icon: pipelineTrain,
-      output: "model weights + metrics"
+      previewMedia: exportTrainImage,
+      output: "model weights exported"
     }
   ]
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setActiveStage((current) => (current >= stages.length ? 1 : current + 1))
+    }, stageDurations[activeStage] ?? 2600)
+
+    return () => window.clearTimeout(timer)
+  }, [activeStage, stages.length])
 
   return (
     <section className="bento-section" id="how">
@@ -49,19 +68,11 @@ export default function BentoSection({
 
           <div className="preview-frame">
             <div className="preview-image">
-              {/* Simulated game footage with annotations */}
-              <div className="bbox bbox-player">
-                <span className="bbox-label">player</span>
-                <span className="bbox-conf">0.94</span>
-              </div>
-              <div className="bbox bbox-weapon">
-                <span className="bbox-label">weapon</span>
-                <span className="bbox-conf">0.87</span>
-              </div>
-              <div className="bbox bbox-vehicle">
-                <span className="bbox-label">vehicle</span>
-                <span className="bbox-conf">0.91</span>
-              </div>
+              <img
+                className="preview-media"
+                src={stages[activeStage - 1].previewMedia}
+                alt={`${stages[activeStage - 1].title} output preview`}
+              />
 
               {/* Stage-specific overlays */}
               {activeStage === 1 && (
@@ -77,11 +88,7 @@ export default function BentoSection({
               )}
               {activeStage === 3 && (
                 <div className="stage-overlay stage-train">
-                  <div className="metrics-overlay">
-                    <div className="metric">mAP: 0.89</div>
-                    <div className="metric">precision: 0.92</div>
-                    <div className="metric">recall: 0.86</div>
-                  </div>
+                  <span className="overlay-text">training complete</span>
                 </div>
               )}
             </div>
@@ -99,11 +106,9 @@ export default function BentoSection({
         {/* Pipeline steps */}
         <div className="bento-pipeline">
           {stages.map((stage) => (
-            <button
+            <div
               key={stage.index}
               className={`bento-stage ${activeStage === stage.index ? 'is-active' : ''}`}
-              onClick={() => setActiveStage(stage.index)}
-              onMouseEnter={() => setActiveStage(stage.index)}
             >
               <div className="stage-number">{String(stage.index).padStart(2, '0')}</div>
 
@@ -138,7 +143,7 @@ export default function BentoSection({
                   </svg>
                 </div>
               )}
-            </button>
+            </div>
           ))}
         </div>
 
@@ -155,8 +160,8 @@ export default function BentoSection({
               <span className="stat-label">auto labels/hour</span>
             </div>
             <div className="stat-item">
-              <span className="stat-value">0.9+</span>
-              <span className="stat-label">typical mAP</span>
+              <span className="stat-value">95%</span>
+              <span className="stat-label">dataset coverage</span>
             </div>
             <div className="stat-item">
               <span className="stat-value">100%</span>

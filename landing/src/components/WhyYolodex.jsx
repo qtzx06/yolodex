@@ -1,10 +1,40 @@
 import { useState, useRef, useEffect } from 'react'
 import { useOutsideClick } from '../hooks/use-outside-click'
+import pipelineIngest from '../assets/pipeline-ingest.svg'
+import pipelineAnnotate from '../assets/pipeline-annotate.svg'
+import pipelineTrain from '../assets/pipeline-train.svg'
+import turnaroundTrainingImage from '../assets/turnaround-training.png'
+import mapScoreImage from '../assets/map-score.png'
+import fullyAutomatedImage from '../assets/fully-automated.png'
+import engineAgnosticImage from '../assets/engine-agnostic.png'
+import hackableDesignImage from '../assets/hackable-design.png'
 import './WhyYolodex.css'
 
 export default function WhyYolodex() {
   const [active, setActive] = useState(null)
   const ref = useRef(null)
+  const carouselRef = useRef(null)
+
+  // Scroll to middle card on mount
+  useEffect(() => {
+    if (carouselRef.current) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        const container = carouselRef.current
+        const cards = container.querySelectorAll('.carousel-card')
+        if (cards.length >= 3) {
+          const middleCard = cards[2] // 3rd card (flexibility) is the middle
+          const containerWidth = container.offsetWidth
+          const cardLeft = middleCard.offsetLeft
+          const cardWidth = middleCard.offsetWidth
+          const scrollPosition = cardLeft - (containerWidth / 2) + (cardWidth / 2)
+
+          // Set scroll position immediately (no animation on initial load)
+          container.scrollLeft = scrollPosition
+        }
+      }, 100)
+    }
+  }, [])
 
   useEffect(() => {
     function onKeyDown(event) {
@@ -66,7 +96,8 @@ export default function WhyYolodex() {
           </div>
         </div>
       ),
-      gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      gradient: 'linear-gradient(135deg, #21406a 0%, #2a80bb 100%)',
+      media: turnaroundTrainingImage,
     },
     {
       id: 2,
@@ -111,7 +142,8 @@ export default function WhyYolodex() {
           </div>
         </div>
       ),
-      gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+      gradient: 'linear-gradient(135deg, #3a1f3f 0%, #b33f58 100%)',
+      media: mapScoreImage,
     },
     {
       id: 3,
@@ -129,27 +161,27 @@ export default function WhyYolodex() {
           </div>
           <div className="content-grid">
             <div className="grid-item">
-              <span className="grid-icon">🎮</span>
+              <span className="grid-icon">u</span>
               <span className="grid-label">unity</span>
             </div>
             <div className="grid-item">
-              <span className="grid-icon">🎯</span>
+              <span className="grid-icon">ue</span>
               <span className="grid-label">unreal</span>
             </div>
             <div className="grid-item">
-              <span className="grid-icon">🎨</span>
+              <span className="grid-icon">g</span>
               <span className="grid-label">godot</span>
             </div>
             <div className="grid-item">
-              <span className="grid-icon">📹</span>
+              <span className="grid-icon">obs</span>
               <span className="grid-label">obs</span>
             </div>
             <div className="grid-item">
-              <span className="grid-icon">📺</span>
+              <span className="grid-icon">yt</span>
               <span className="grid-label">youtube</span>
             </div>
             <div className="grid-item">
-              <span className="grid-icon">🎬</span>
+              <span className="grid-icon">mp4</span>
               <span className="grid-label">mp4/avi</span>
             </div>
           </div>
@@ -161,7 +193,8 @@ export default function WhyYolodex() {
           </div>
         </div>
       ),
-      gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+      gradient: 'linear-gradient(135deg, #5a2a2a 0%, #c57a33 100%)',
+      media: engineAgnosticImage,
     },
     {
       id: 4,
@@ -216,7 +249,8 @@ export default function WhyYolodex() {
           </div>
         </div>
       ),
-      gradient: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+      gradient: 'linear-gradient(135deg, #1d4258 0%, #3d8f9d 100%)',
+      media: fullyAutomatedImage,
     },
     {
       id: 5,
@@ -264,7 +298,8 @@ output: yolo format`}</pre>
           </div>
         </div>
       ),
-      gradient: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
+      gradient: 'linear-gradient(135deg, #4b3522 0%, #c0865f 100%)',
+      media: hackableDesignImage,
     },
   ]
 
@@ -275,10 +310,11 @@ output: yolo format`}</pre>
         <h2 className="section-title">built for speed, accuracy, and scale</h2>
       </div>
 
-      <div className="cards-carousel">
+      <div className="cards-carousel" ref={carouselRef}>
         <div className="carousel-track">
           {cards.map((card) => (
-            <div
+            <button
+              type="button"
               key={card.id}
               className={`carousel-card ${active?.id === card.id ? 'is-active' : ''}`}
               onClick={() => setActive(card)}
@@ -290,10 +326,9 @@ output: yolo format`}</pre>
                 <p className="card-description">{card.description}</p>
               </div>
               <div className="card-preview">
-                <div className="preview-gradient" />
-                <span className="preview-cta">explore →</span>
+                <img className="card-media" src={card.media} alt={`${card.title} feature preview`} />
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -308,6 +343,7 @@ output: yolo format`}</pre>
               style={{ '--card-gradient': active.gradient }}
             >
               <button
+                type="button"
                 className="modal-close"
                 onClick={() => setActive(null)}
                 aria-label="Close modal"
@@ -324,6 +360,9 @@ output: yolo format`}</pre>
               </div>
 
               <div className="modal-body">
+                <div className="modal-media-wrap">
+                  <img className="modal-media" src={active.media} alt={`${active.title} feature preview`} />
+                </div>
                 {active.content}
               </div>
             </div>

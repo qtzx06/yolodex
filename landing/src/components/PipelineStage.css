@@ -2,7 +2,7 @@
   position: relative;
   background: linear-gradient(135deg, rgba(10, 18, 38, 0.8), rgba(20, 32, 58, 0.6));
   border: 1px solid rgba(120, 160, 255, 0.2);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 28px;
   min-height: 420px;
   display: flex;
@@ -55,7 +55,7 @@
 .pipeline-stage-glow {
   position: absolute;
   inset: -2px;
-  border-radius: 20px;
+  border-radius: 8px;
   background: radial-gradient(
     circle at var(--mouse-x) var(--mouse-y),
     rgba(120, 160, 255, 0.3),
@@ -79,7 +79,7 @@
   justify-content: center;
   width: 56px;
   height: 56px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: linear-gradient(135deg, rgba(100, 140, 255, 0.15), rgba(80, 120, 235, 0.1));
   border: 1px solid rgba(140, 180, 255, 0.3);
   font-size: 1.4rem;
@@ -93,7 +93,7 @@
 .pipeline-stage-pulse {
   position: absolute;
   inset: 0;
-  border-radius: 12px;
+  border-radius: 4px;
   background: radial-gradient(circle, rgba(120, 160, 255, 0.4), transparent 70%);
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   opacity: 0;
@@ -107,7 +107,7 @@
   position: relative;
   width: 100%;
   height: 200px;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   background: linear-gradient(135deg, rgba(8, 15, 32, 0.6), rgba(15, 25, 48, 0.4));
   border: 1px solid rgba(100, 140, 255, 0.15);
