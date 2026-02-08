@@ -5,17 +5,17 @@ main flow is skill-driven orchestration through codex, not ad-hoc scripts.
 
 [![star history chart](https://api.star-history.com/svg?repos=qtzx06/yolodex&type=Date)](https://star-history.com/#qtzx06/yolodex&Date)
 
-```
-YouTube URL + classes
-       |
-       v
-  +---------+     +-------+     +---------+     +-------+     +------+
-  | collect | --> | label | --> | augment | --> | train | --> | eval |
-  +---------+     +-------+     +---------+     +-------+     +------+
-                     |                                            |
-              parallel subagents                          meets target?
-              in git worktrees                           no -> loop back
-                                                         yes -> done
+```mermaid
+flowchart LR
+  A["youtube url + classes"] --> B["collect"]
+  B --> C["label"]
+  C --> D["augment"]
+  D --> E["train"]
+  E --> F["eval"]
+  C -. "parallel subagents in git worktrees" .-> C
+  F --> G{"meets target?"}
+  G -- "no" --> C
+  G -- "yes" --> H["done"]
 ```
 
 ## codex-first setup
