@@ -185,3 +185,5 @@ if you’re planning a bigger change, open an issue first so we can align on dir
 ## license
 
 mit
+
+made with love at openai ❤️
