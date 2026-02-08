@@ -3,6 +3,8 @@
 codex-native yolo dataset + training pipeline for gameplay videos.
 main flow is skill-driven orchestration through codex, not ad-hoc scripts.
 
+[![star history chart](https://api.star-history.com/svg?repos=qtzx06/yolodex&type=Date)](https://star-history.com/#qtzx06/yolodex&Date)
+
 ```
 YouTube URL + classes
        |
@@ -23,13 +25,12 @@ git clone <repo-url> && cd yolodex
 bash setup.sh
 ```
 
-the setup script installs ffmpeg, yt-dlp, uv, and python deps (ultralytics/openai/torch/pillow).
+the setup script installs ffmpeg, yt-dlp, uv, and python deps (ultralytics/torch/pillow).
 
 **requirements:**
 - macOS or Linux
 - Python 3.11+
 - [Codex CLI](https://github.com/openai/codex)
-- `OPENAI_API_KEY` (required for `gpt` / optional for `codex` label mode)
 
 ## codex integration
 
@@ -49,7 +50,7 @@ bash .agents/skills/label/scripts/dispatch.sh 4
 ```
 
 if your session does not expose subagents, run that command directly.
-for no-key labeling, set `"label_mode": "codex"`.
+set `"label_mode": "codex"` for codex-native labeling.
 
 ## quick start (recommended)
 
@@ -61,8 +62,7 @@ for no-key labeling, set `"label_mode": "codex"`.
   "video_url": "https://youtube.com/watch?v=YOUR_VIDEO",
   "classes": ["player", "weapon", "vehicle"],
   "label_mode": "codex",
-  "target_accuracy": 0.75,
-  "model": "gpt-5-nano"
+  "target_accuracy": 0.75
 }
 ```
 
@@ -95,8 +95,7 @@ uv run .agents/skills/eval/scripts/run.py           # evaluate model
 ### 3) outputs
 
 ```bash
-cat output/eval_results.json    # mAP, precision, recall, per-class breakdown
-cd landing && bunx serve .      # web dashboard
+cat runs/<project>/eval_results.json    # mAP, precision, recall, per-class breakdown
 ```
 After labeling you can inspect `runs/<project>/frames/preview/` (PNG overlays)
 and `runs/<project>/frames/preview/preview.mp4` for a quick annotated walkthrough.
@@ -120,7 +119,7 @@ Each pipeline stage is a standalone [Codex skill](https://developers.openai.com/
 The label skill can dispatch N concurrent Codex subagents, each in its own git worktree:
 
 1. Frames split into N batches
-2. Each batch gets a git worktree at `/tmp/yolodex-workers/agent-N/`
+2. Each batch gets a git worktree under `/tmp/yolodex-workers/run-*/agent-N/`
 3. `codex exec --full-auto -C <worktree>` labels each batch concurrently
 4. Results merge back, class maps unified
 
@@ -138,21 +137,13 @@ bash .agents/skills/label/scripts/dispatch.sh 8
 
 1. Each iteration calls `codex exec --full-auto` which reads `AGENTS.md`
 2. Codex checks what exists (video? frames? labels? model? eval?) and runs the next phase
-3. After eval, if accuracy >= target, emits `<promise>COMPLETE</promise>` and exits
+3. After eval, loop exits when target is met (from `<promise>COMPLETE</promise>` or `eval_results.json`)
 4. If below target, loops back to re-label failures and retrain
 5. Cross-iteration memory stored in `progress.txt`
 
-## Models
+## models
 
-### Vision (for labeling)
-
-| Model | Cost | Speed | Recommended for |
-|-------|------|-------|-----------------|
-| **gpt-5-nano** (default) | $$ | Fastest | High-volume labeling |
-| gpt-4.1-mini | $$ | Fast | Best accuracy/cost balance |
-| gpt-4o | $$$$ | Medium | Maximum accuracy |
-
-### YOLO (for training)
+### yolo (for training)
 
 | Model | Params | Speed | Recommended for |
 |-------|--------|-------|-----------------|
@@ -160,9 +151,9 @@ bash .agents/skills/label/scripts/dispatch.sh 8
 | yolov8s.pt | 11.2M | Fast | Production, medium datasets |
 | yolov8m.pt | 25.9M | Medium | Large datasets, GPU available |
 
-Change in `config.json`:
+change in `config.json`:
 ```json
-{"model": "gpt-4.1-mini", "yolo_model": "yolov8s.pt"}
+{"yolo_model": "yolov8s.pt"}
 ```
 
 ## Config Reference
@@ -175,8 +166,7 @@ Change in `config.json`:
 | `max_iterations` | `10` | Safety cap on autonomous loop |
 | `num_agents` | `4` | Parallel labeling subagents |
 | `fps` | `1` | Frame extraction rate (frames/second) |
-| `label_mode` | `"gpt"` | Labeler mode: `cua+sam`, `gemini`, `gpt`, or `codex` (no API keys) |
-| `model` | `"gpt-5-nano"` | Vision model for labeling |
+| `label_mode` | `"codex"` | Labeler mode: `cua+sam`, `gemini`, `gpt`, or `codex` |
 | `yolo_model` | `"yolov8n.pt"` | YOLO base model for training |
 | `epochs` | `50` | Training epochs per iteration |
 | `train_split` | `0.8` | Train/val split ratio |
@@ -194,7 +184,6 @@ yolodex/
 │   └── eval/               # mAP metrics + failure analysis
 ├── shared/utils.py         # Shared Python utils (BoundingBox, helpers)
 ├── pipeline/main.py        # Original monolith (preserved as reference)
-├── landing/                # Web dashboard (HTML/CSS)
 ├── docs/                   # Detailed documentation
 ├── yolodex.sh              # Ralph-style autonomous loop
 ├── setup.sh                # Install script
