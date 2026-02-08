@@ -2,10 +2,10 @@
 
 <div align="center">
 
-![GitHub last commit](https://img.shields.io/github/last-commit/qtzx06/yolodex?style=for-the-badge&labelColor=101418&color=9ccbfb)
-![GitHub Repo stars](https://img.shields.io/github/stars/qtzx06/yolodex?style=for-the-badge&labelColor=101418&color=b9c8da)
-![GitHub repo size](https://img.shields.io/github/repo-size/qtzx06/yolodex?style=for-the-badge&labelColor=101418&color=d3bfe6)
-![GitHub License](https://img.shields.io/github/license/qtzx06/yolodex?style=for-the-badge&labelColor=101418&color=96f1f1)
+![GitHub last commit](https://img.shields.io/github/last-commit/qtzx06/yolodex?style=for-the-badge&labelColor=ffffff&color=8ecaff)
+![GitHub Repo stars](https://img.shields.io/github/stars/qtzx06/yolodex?style=for-the-badge&labelColor=ffffff&color=8ecaff)
+![GitHub repo size](https://img.shields.io/github/repo-size/qtzx06/yolodex?style=for-the-badge&labelColor=ffffff&color=8ecaff)
+![License: MIT](https://img.shields.io/badge/license-MIT-8ecaff?style=for-the-badge&labelColor=ffffff)
 
 </div>
 
