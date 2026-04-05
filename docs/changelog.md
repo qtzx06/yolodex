@@ -1,5 +1,18 @@
 # changelog
 
+## 2026-04-04: codex CLI updates + model refresh
+
+updated docs and model references for latest codex CLI features.
+
+### changes
+
+- added `gpt-5.3-codex-spark` (1000+ tok/s, optimized for codex CLI labeling loops)
+- added `gpt-5.4` as flagship model (frontier reasoning + native computer use)
+- removed `gpt-5.2` (deprecated in favor of 5.4)
+- documented forked skill contexts (`context: fork`) for isolated subagent execution
+- documented per-skill model specification for mixed-model pipelines
+- cleaned up stale branches
+
 ## 2026-02-05: skill-based pipeline rewrite
 
 replaced the monolithic pipeline with a codex skill architecture and parallel labeling system.

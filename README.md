@@ -50,7 +50,7 @@ bash setup.sh
 requirements:
 - macos, linux, or windows
 - python 3.11+
-- [codex cli](https://github.com/openai/codex) (or the codex app)
+- [codex cli](https://github.com/openai/codex) (latest — supports forked skill contexts and per-skill model overrides)
 
 ## codex workflow (main path)
 

@@ -8,10 +8,11 @@ used in the label skill to detect objects in game screenshots and return boundin
 |-------|-----------|-------------|-------|---------|-------|
 | **gpt-5-nano** | cheapest | cheapest | fastest | good | **default** — best for high-volume labeling |
 | **gpt-5-mini** | low | low | fast | better | reasoning model, slight thinking overhead |
+| **gpt-5.3-codex-spark** | low | low | 1000+ tok/s | good | optimized for codex CLI, ideal for rapid labeling loops |
 | **gpt-4.1-nano** | $0.10/1M | $0.40/1M | very fast | good | non-reasoning, excellent for structured output |
 | **gpt-4.1-mini** | $0.40/1M | $1.60/1M | fast | very good | **best accuracy/cost balance** |
-| **gpt-4o** | $2.50/1M | $10.00/1M | medium | excellent | legacy, 25x more expensive than 4.1-nano |
-| **gpt-5.2** | $1.75/1M | $14.00/1M | slow | best | flagship reasoning, overkill for bbox detection |
+| **gpt-5.4** | $2.00/1M | $12.00/1M | medium | best | frontier reasoning + native computer use |
+| **gpt-4o** | $2.50/1M | $10.00/1M | medium | excellent | legacy |
 
 ### how to change
 

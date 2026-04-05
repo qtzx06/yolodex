@@ -158,8 +158,8 @@ bash .agents/skills/label/scripts/dispatch.sh 8
 
 ## tips
 
-- **fast iteration**: use `gpt-5-nano` (default) for labeling — cheapest and fastest
-- **better accuracy**: switch to `gpt-4.1-mini` or `gpt-4o` in config.json
+- **fast iteration**: use `gpt-5-nano` (default) or `gpt-5.3-codex-spark` (1000+ tok/s) for labeling
+- **better accuracy**: switch to `gpt-4.1-mini` or `gpt-5.4` in config.json
 - **more data**: lower fps to extract more frames (e.g. `"fps": 2` = 2 frames/sec)
 - **bigger model**: change `yolo_model` to `yolov8s.pt` or `yolov8m.pt` for better detection
 - **longer training**: increase `epochs` beyond 50 for more convergence
