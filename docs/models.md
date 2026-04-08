@@ -39,8 +39,10 @@ for a 5-minute gameplay video at 1 fps = ~300 frames:
 | model | est. cost (300 frames) |
 |-------|----------------------|
 | gpt-5-nano | ~$0.10-0.30 |
+| gpt-5.3-codex-spark | ~$0.15-0.35 |
 | gpt-4.1-nano | ~$0.15-0.40 |
 | gpt-4.1-mini | ~$0.50-1.50 |
+| gpt-5.4 | ~$3-8 |
 | gpt-4o | ~$5-15 |
 
 costs depend on image resolution and number of detected objects.
